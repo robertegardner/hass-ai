@@ -5,7 +5,7 @@
       "label": "PAE Postgres",
       "description": "PostgreSQL datasource pointing at the PAE TimescaleDB",
       "type": "datasource",
-      "pluginId": "postgres",
+      "pluginId": "grafana-postgresql-datasource",
       "pluginName": "PostgreSQL"
     }
   ],
@@ -21,7 +21,7 @@
       "id": 1,
       "title": "Event volume by domain",
       "type": "timeseries",
-      "datasource": { "type": "postgres", "uid": "${DS_PAE_POSTGRES}" },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_PAE_POSTGRES}" },
       "gridPos": { "h": 9, "w": 12, "x": 0, "y": 0 },
       "targets": [
         {
@@ -39,7 +39,7 @@
       "id": 2,
       "title": "Manual vs automation",
       "type": "timeseries",
-      "datasource": { "type": "postgres", "uid": "${DS_PAE_POSTGRES}" },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_PAE_POSTGRES}" },
       "gridPos": { "h": 9, "w": 8, "x": 12, "y": 0 },
       "targets": [
         {
@@ -57,7 +57,7 @@
       "id": 3,
       "title": "Manual share (window)",
       "type": "stat",
-      "datasource": { "type": "postgres", "uid": "${DS_PAE_POSTGRES}" },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_PAE_POSTGRES}" },
       "gridPos": { "h": 9, "w": 4, "x": 20, "y": 0 },
       "targets": [
         {
@@ -72,7 +72,7 @@
       "id": 4,
       "title": "Presence timeline (person entities)",
       "type": "state-timeline",
-      "datasource": { "type": "postgres", "uid": "${DS_PAE_POSTGRES}" },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_PAE_POSTGRES}" },
       "gridPos": { "h": 9, "w": 12, "x": 0, "y": 9 },
       "targets": [
         {
@@ -90,7 +90,7 @@
       "id": 5,
       "title": "Room-level person detections (UniFi)",
       "type": "timeseries",
-      "datasource": { "type": "postgres", "uid": "${DS_PAE_POSTGRES}" },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_PAE_POSTGRES}" },
       "gridPos": { "h": 9, "w": 12, "x": 12, "y": 9 },
       "targets": [
         {
@@ -108,7 +108,7 @@
       "id": 6,
       "title": "Context frames: persons home + outside temp",
       "type": "timeseries",
-      "datasource": { "type": "postgres", "uid": "${DS_PAE_POSTGRES}" },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "${DS_PAE_POSTGRES}" },
       "gridPos": { "h": 8, "w": 24, "x": 0, "y": 18 },
       "targets": [
         {
