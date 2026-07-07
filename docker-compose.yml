@@ -10,7 +10,9 @@ services:
     volumes:
       - pae_pgdata:/var/lib/postgresql/data
     ports:
-      - "127.0.0.1:5432:5432"
+      # LAN-reachable so the central Grafana (192.168.6.51) can query;
+      # remote access is via the read-only grafana_ro role
+      - "5432:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U pae"]
       interval: 10s
