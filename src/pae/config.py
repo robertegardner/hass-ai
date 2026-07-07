@@ -33,6 +33,15 @@ class Settings(BaseSettings):
     api_port: int = 8000
     worker_metrics_port: int = 9100
 
+    # ingestion (Phase 1)
+    ingest_flush_interval: float = 5.0
+    ingest_flush_size: int = 200
+    ingest_denylist: str = ""  # comma-separated entity_id globs to drop
+    outside_temp_entity: str = "sensor.weewx_outisde_temperature"  # [sic] — HA entity is misspelled
+    persons_exclude: str = "person.ha_panel"  # comma-separated person entities to ignore
+    context_frame_interval: int = 60
+    registry_refresh_hours: int = 24
+
     @property
     def ha_ws_url(self) -> str:
         base = self.ha_url.rstrip("/")

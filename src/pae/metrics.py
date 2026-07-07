@@ -18,3 +18,16 @@ HA_EVENTS_RECEIVED = Counter(
     "Events received over the Home Assistant WebSocket",
     ["event_type"],
 )
+
+INGEST_ROWS_WRITTEN = Counter(
+    "pae_ingest_rows_written_total", "Rows written to the database", ["table"]
+)
+INGEST_EVENTS_FILTERED = Counter(
+    "pae_ingest_events_filtered_total", "state_changed events dropped by the domain filter"
+)
+INGEST_EVENTS_ATTRIBUTED = Counter(
+    "pae_ingest_events_attributed_total", "Ingested events by attribution", ["triggered_by"]
+)
+INGEST_FLUSH_ERRORS = Counter(
+    "pae_ingest_flush_errors_total", "Database flush failures (rows retried on next flush)"
+)

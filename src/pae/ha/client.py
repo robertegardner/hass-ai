@@ -15,9 +15,20 @@ from pae.metrics import HA_EVENTS_RECEIVED, HA_WS_CONNECTED, HA_WS_RECONNECTS
 
 log = get_logger(__name__)
 
-# Only these message types may ever leave the WebSocket client in Phase 0.
-# Widening this set is a deliberate, reviewed act in a later phase.
-ALLOWED_OUTBOUND_TYPES = frozenset({"auth", "subscribe_events", "ping"})
+# Only these message types may ever leave the WebSocket client. All are
+# read-only. Widening this set is a deliberate, reviewed act — write-capable
+# types (call_service, config/automation/*) stay out until their phase.
+ALLOWED_OUTBOUND_TYPES = frozenset(
+    {
+        "auth",
+        "subscribe_events",
+        "ping",
+        "get_states",
+        "config/entity_registry/list",
+        "config/area_registry/list",
+        "config/device_registry/list",
+    }
+)
 
 EventCallback = Callable[[HAEvent], Awaitable[None] | None]
 
@@ -96,6 +107,20 @@ class HARestClient:
         data = await self._get("/api/states")
         return [EntityState.model_validate(item) for item in data]
 
+    async def get_state(self, entity_id: str) -> EntityState | None:
+        """State of one entity, or None if it does not exist."""
+        assert self._session is not None, "use 'async with HARestClient(...)'"
+        try:
+            async with self._session.get(f"{self._base_url}/api/states/{entity_id}") as resp:
+                if resp.status == 404:
+                    return None
+                if resp.status == 401:
+                    raise HAAuthError("REST API rejected the token (401)")
+                resp.raise_for_status()
+                return EntityState.model_validate(await resp.json())
+        except aiohttp.ClientError as e:
+            raise HAConnectionError(f"GET /api/states/{entity_id} failed: {e}") from e
+
     @writes_to_ha
     def call_service(self, domain: str, service: str, **data: Any):
         raise NotImplementedError("Service calls arrive in a later phase")
@@ -155,8 +180,19 @@ class HAWebSocketClient:
         finally:
             self._pending.pop(msg_id, None)
 
+    async def get_entity_registry(self) -> list[dict[str, Any]]:
+        return await self._send_command({"type": "config/entity_registry/list"})
+
+    async def get_area_registry(self) -> list[dict[str, Any]]:
+        return await self._send_command({"type": "config/area_registry/list"})
+
+    async def get_device_registry(self) -> list[dict[str, Any]]:
+        return await self._send_command({"type": "config/device_registry/list"})
+
     async def _authenticate(self, session: aiohttp.ClientSession) -> None:
-        self._ws = await session.ws_connect(self._ws_url, heartbeat=30)
+        # max_msg_size=0: registry/state responses on a large HA install
+        # exceed aiohttp's 4MB default and would kill the connection
+        self._ws = await session.ws_connect(self._ws_url, heartbeat=30, max_msg_size=0)
         # HA speaks first: read auth_required, then send our token.
         first = await self._ws.receive_json()
         if first.get("type") != "auth_required":
@@ -197,9 +233,13 @@ class HAWebSocketClient:
             event = HAEvent.model_validate(frame.get("event", {}))
             HA_EVENTS_RECEIVED.labels(event_type=event.event_type or "unknown").inc()
             if callback:
-                result = callback(event)
-                if asyncio.iscoroutine(result):
-                    await result
+                try:
+                    result = callback(event)
+                    if asyncio.iscoroutine(result):
+                        await result
+                except Exception:
+                    # a bad event must not take down the connection
+                    log.exception("event_callback_failed", event_type=event.event_type)
 
     async def _listen(self) -> None:
         assert self._ws is not None
@@ -233,6 +273,11 @@ class HAWebSocketClient:
                 finally:
                     self._connected_event.clear()
                     HA_WS_CONNECTED.set(0)
+                    # fail pending commands now rather than letting them
+                    # sit until their 30s timeout
+                    for future in self._pending.values():
+                        if not future.done():
+                            future.set_exception(HAConnectionError("connection lost"))
                     if self._ws is not None and not self._ws.closed:
                         await self._ws.close()
                 if self._stopping:

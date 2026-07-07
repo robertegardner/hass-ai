@@ -48,6 +48,19 @@ services:
       start_period: 10s
     restart: unless-stopped
 
+  ingester:
+    build: .
+    command: ["pae", "ingest"]
+    env_file: .env
+    expose:
+      - "9100"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
   worker:
     build: .
     command: ["pae", "worker"]

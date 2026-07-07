@@ -6,16 +6,36 @@ graduates automations through three trust levels: **shadow → suggest → auton
 The LLM never sits in the real-time control loop; HA's native automation engine executes
 everything. Predictability beats cleverness.
 
-**Current status: Phase 0** — stack scaffold + read-only HA connectivity. Nothing is ever
-written to Home Assistant in this phase (enforced in code: outbound WebSocket message
-whitelist + `ReadOnlyViolation` guard on all write-shaped methods).
+**Current status: Phase 1** — event ingestion & schema. PAE still writes nothing to Home
+Assistant (enforced in code: outbound WebSocket message whitelist — read-only commands
+only — plus a `ReadOnlyViolation` guard on all write-shaped methods).
 
 ## Stack
 
 - `api` — FastAPI (`/healthz`, `/readyz`, `/metrics`), port 8000
+- `ingester` — independent HA WebSocket listener (does not touch HA's recorder):
+  behavioral events with `triggered_by` attribution, presence snapshots, per-minute
+  context frames, daily entity-registry mirror. Metrics on internal :9100
 - `worker` — RQ worker on queue `pae:default`, Prometheus metrics on internal :9100
-- `db` — TimescaleDB (Postgres 16); schema arrives in Phase 1
+- `db` — TimescaleDB (Postgres 16): hypertables `events` (12-month retention),
+  `presence_snapshots`, `context_frames`; `events_hourly` continuous aggregate;
+  `entity_registry` mirror. Migrations via Alembic (`pae migrate`, auto-run by ingester)
 - `redis` — job queue backend
+
+## Attribution (`triggered_by`)
+
+Every ingested event is classified `manual` / `automation` / `pae` using HA's context
+parent chain: the ingester caches context ids announced by `automation_triggered` /
+`script_started` and matches each `state_changed` context id or parent id against the
+cache; an unseen parent id still counts as `automation` (never credit a non-human chain
+as manual). Physical actions and UI/app actions are both `manual`. Logic in
+`src/pae/ingest/attribution.py`.
+
+## Grafana
+
+`grafana/pae-dashboard-1-ingestion.json` — import into Grafana (192.168.6.51) with a
+PostgreSQL datasource pointing at the PAE database. Panels: event volume by domain,
+manual-vs-automation ratio, presence timeline, room-level detections, context frames.
 
 ## Quickstart
 

@@ -24,4 +24,15 @@ async def test_ws_outbound_whitelist_blocks_unknown_types():
 
 
 def test_whitelist_is_read_only_frame_types():
-    assert ALLOWED_OUTBOUND_TYPES == {"auth", "subscribe_events", "ping"}
+    assert ALLOWED_OUTBOUND_TYPES == {
+        "auth",
+        "subscribe_events",
+        "ping",
+        "get_states",
+        "config/entity_registry/list",
+        "config/area_registry/list",
+        "config/device_registry/list",
+    }
+    # nothing write-shaped may ever appear here without a phase review
+    for forbidden in ("call_service", "config/automation/create", "config/label_registry/create"):
+        assert forbidden not in ALLOWED_OUTBOUND_TYPES

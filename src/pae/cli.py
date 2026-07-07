@@ -14,6 +14,8 @@ def main(argv: list[str] | None = None) -> int:
 
     sub.add_parser("api", help="run the FastAPI service")
     sub.add_parser("worker", help="run the RQ worker")
+    sub.add_parser("ingest", help="run the HA event ingester")
+    sub.add_parser("migrate", help="upgrade the database schema to head")
     smoke = sub.add_parser("smoke", help="read-only smoke test against live Home Assistant")
     smoke.add_argument(
         "--duration", type=int, default=60, help="seconds to listen for events (default 60)"
@@ -47,6 +49,18 @@ def main(argv: list[str] | None = None) -> int:
         from pae.worker.main import run_worker
 
         run_worker()
+        return 0
+
+    if args.command == "ingest":
+        from pae.ingest.service import run_ingest
+
+        run_ingest()
+        return 0
+
+    if args.command == "migrate":
+        from pae.db.migrate import run_migrations
+
+        run_migrations()
         return 0
 
     return 1
