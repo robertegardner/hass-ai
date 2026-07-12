@@ -42,6 +42,18 @@ class Settings(BaseSettings):
     context_frame_interval: int = 60
     registry_refresh_hours: int = 24
 
+    # miner (Phase 2)
+    miner_lookback_days: int = 60
+    miner_run_hour_utc: int = 9  # nightly mining job; 03:00/04:00 America/Chicago
+    miner_local_tz: str = "America/Chicago"
+    miner_min_occurrences: int = 4
+    miner_tod_min_support: float = 0.5
+    miner_tod_tolerance_minutes: float = 45.0
+    miner_schedule_std_minutes: float = 2.0
+    miner_pair_window_minutes: float = 5.0
+    miner_pair_min_confidence: float = 0.6
+    miner_pair_min_lift: float = 3.0
+
     @property
     def ha_ws_url(self) -> str:
         base = self.ha_url.rstrip("/")

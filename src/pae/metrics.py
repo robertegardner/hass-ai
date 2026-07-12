@@ -31,3 +31,12 @@ INGEST_EVENTS_ATTRIBUTED = Counter(
 INGEST_FLUSH_ERRORS = Counter(
     "pae_ingest_flush_errors_total", "Database flush failures (rows retried on next flush)"
 )
+
+MINER_RUNS = Counter("pae_miner_runs_total", "Pattern-mining runs", ["status"])
+MINER_RUN_SECONDS = Gauge("pae_miner_run_seconds", "Duration of the last mining run")
+MINER_LAST_SUCCESS = Gauge(
+    "pae_miner_last_success_timestamp", "Unix time of the last successful mining run"
+)
+MINER_PATTERNS = Gauge(
+    "pae_miner_patterns", "Patterns currently in the patterns table", ["kind"]
+)

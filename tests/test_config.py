@@ -35,3 +35,19 @@ def test_ws_url_derivation():
         Settings(_env_file=None, ha_url="https://ha.example.com/").ha_ws_url
         == "wss://ha.example.com/api/websocket"
     )
+
+
+def test_miner_defaults():
+    from pae.config import Settings
+
+    s = Settings(_env_file=None)
+    assert s.miner_lookback_days == 60
+    assert s.miner_run_hour_utc == 9  # 03:00/04:00 America/Chicago
+    assert s.miner_local_tz == "America/Chicago"
+    assert s.miner_min_occurrences == 4
+    assert s.miner_tod_min_support == 0.5
+    assert s.miner_tod_tolerance_minutes == 45.0
+    assert s.miner_schedule_std_minutes == 2.0
+    assert s.miner_pair_window_minutes == 5.0
+    assert s.miner_pair_min_confidence == 0.6
+    assert s.miner_pair_min_lift == 3.0
