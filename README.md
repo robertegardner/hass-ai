@@ -6,7 +6,7 @@ graduates automations through three trust levels: **shadow → suggest → auton
 The LLM never sits in the real-time control loop; HA's native automation engine executes
 everything. Predictability beats cleverness.
 
-**Current status: Phase 1** — event ingestion & schema. PAE still writes nothing to Home
+**Current status: Phase 2** — statistical pattern mining. PAE still writes nothing to Home
 Assistant (enforced in code: outbound WebSocket message whitelist — read-only commands
 only — plus a `ReadOnlyViolation` guard on all write-shaped methods).
 
@@ -31,11 +31,36 @@ cache; an unseen parent id still counts as `automation` (never credit a non-huma
 as manual). Physical actions and UI/app actions are both `manual`. Logic in
 `src/pae/ingest/attribution.py`.
 
+## Pattern mining (Phase 2)
+
+A nightly RQ job (enqueued by the worker at `MINER_RUN_HOUR_UTC`, default 09:00 UTC)
+mines the last `MINER_LOOKBACK_DAYS` (60) of events for two pattern kinds:
+
+- **time_of_day** — a manual action recurring at a consistent local time, conditioned on
+  weekday/weekend (US holidays count as weekend). Scored by support (active days /
+  observed days), temporal consistency (share of occurrences within ±45 min of the
+  circular mean), and lift vs. a uniform-over-the-day baseline.
+- **event_pair** — a manual action following some other state transition within 5
+  minutes. Scored by association-rule support/confidence/lift. Near-simultaneous pairs
+  (< 2 s) are discarded as state mirrors.
+
+Clockwork-regular device-originated patterns (circular std ≤ 2 min, no user_id — e.g.
+the Pentair pool controller's own schedule) are flagged `suspected_schedule`, kept but
+never to be proposed as automations. Patterns upsert into `patterns` by `pattern_key`;
+the miner never touches `status` (lifecycle belongs to Phase 3+).
+
+    pae mine             # run the miner once, now
+    pae patterns list    # top patterns by lift (--kind, --limit)
+
 ## Grafana
 
-`grafana/pae-dashboard-1-ingestion.json` — import into Grafana (192.168.6.51) with a
-PostgreSQL datasource pointing at the PAE database. Panels: event volume by domain,
-manual-vs-automation ratio, presence timeline, room-level detections, context frames.
+- `grafana/pae-dashboard-1-ingestion.json` — event volume by domain, manual-vs-automation
+  ratio, presence timeline, room-level detections, context frames.
+- `grafana/pae-dashboard-2-patterns.json` — mined patterns: counts by kind, suspected
+  external schedules, staleness, top patterns by lift.
+
+Import into Grafana (192.168.6.51) with a PostgreSQL datasource pointing at the PAE
+database (Grafana 13: datasource type `grafana-postgresql-datasource`).
 
 ## Quickstart
 

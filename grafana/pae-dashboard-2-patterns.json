@@ -1,0 +1,96 @@
+{
+  "uid": "pae-patterns",
+  "title": "PAE — Patterns (Phase 2)",
+  "tags": ["pae"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "refresh": "15m",
+  "time": {"from": "now-30d", "to": "now"},
+  "panels": [
+    {
+      "id": 1,
+      "type": "stat",
+      "title": "Patterns by kind",
+      "gridPos": {"h": 5, "w": 6, "x": 0, "y": 0},
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "afreiil0pq41se"},
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "rawSql": "SELECT kind, count(*)::int AS patterns FROM patterns GROUP BY kind ORDER BY kind"
+        }
+      ],
+      "options": {"reduceOptions": {"values": true, "fields": "/patterns/"}, "textMode": "value_and_name"}
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "Suspected external schedules",
+      "gridPos": {"h": 5, "w": 6, "x": 6, "y": 0},
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "afreiil0pq41se"},
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "rawSql": "SELECT count(*)::int AS suspected FROM patterns WHERE suspected_schedule"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "yellow", "value": 1}]}
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 3,
+      "type": "stat",
+      "title": "Hours since last mine",
+      "gridPos": {"h": 5, "w": 6, "x": 12, "y": 0},
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "afreiil0pq41se"},
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "rawSql": "SELECT round(extract(epoch FROM now() - max(mined_at)) / 3600, 1) AS hours FROM patterns"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "h",
+          "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "red", "value": 30}]}
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 4,
+      "type": "stat",
+      "title": "Actionable manual events (30d)",
+      "gridPos": {"h": 5, "w": 6, "x": 18, "y": 0},
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "afreiil0pq41se"},
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "rawSql": "SELECT count(*)::int AS events FROM events WHERE triggered_by = 'manual' AND domain IN ('light','switch','climate','cover','lock','fan','media_player') AND time > now() - interval '30 days'"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "type": "table",
+      "title": "Top patterns by lift",
+      "gridPos": {"h": 16, "w": 24, "x": 0, "y": 5},
+      "datasource": {"type": "grafana-postgresql-datasource", "uid": "afreiil0pq41se"},
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "rawSql": "SELECT kind, coalesce(trigger_entity_id || '=' || trigger_state || ' => ', '') || entity_id || ' -> ' || action AS pattern, day_type, to_char((tod_minutes || ' minutes')::interval, 'HH24:MI') AS around, round(support::numeric, 2) AS support, round(confidence::numeric, 2) AS confidence, round(lift::numeric, 1) AS lift, occurrences, suspected_schedule AS sched, status, last_seen FROM patterns ORDER BY lift DESC LIMIT 100"
+        }
+      ],
+      "options": {"sortBy": [{"displayName": "lift", "desc": true}]}
+    }
+  ]
+}
