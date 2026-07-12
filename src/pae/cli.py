@@ -16,6 +16,12 @@ def main(argv: list[str] | None = None) -> int:
     sub.add_parser("worker", help="run the RQ worker")
     sub.add_parser("ingest", help="run the HA event ingester")
     sub.add_parser("migrate", help="upgrade the database schema to head")
+    sub.add_parser("mine", help="run the pattern miner once, now")
+    patterns = sub.add_parser("patterns", help="inspect mined patterns")
+    psub = patterns.add_subparsers(dest="patterns_command", required=True)
+    plist = psub.add_parser("list", help="list mined patterns by descending lift")
+    plist.add_argument("--kind", choices=["time_of_day", "event_pair"])
+    plist.add_argument("--limit", type=int, default=30)
     smoke = sub.add_parser("smoke", help="read-only smoke test against live Home Assistant")
     smoke.add_argument(
         "--duration", type=int, default=60, help="seconds to listen for events (default 60)"
@@ -30,6 +36,24 @@ def main(argv: list[str] | None = None) -> int:
         from pae.smoke import run_smoke
 
         return asyncio.run(run_smoke(duration=args.duration))
+
+    if args.command == "mine":
+        configure_logging(settings.log_level, "console")
+        from pae.miner.service import run_mining
+
+        result = run_mining()
+        print(
+            f"events={result.events_loaded} days={result.days_observed} "
+            f"tod={result.tod_patterns} pairs={result.pair_patterns}"
+        )
+        return 0
+
+    if args.command == "patterns":
+        configure_logging(settings.log_level, "console")
+        from pae.miner.report import fetch_patterns, render_patterns
+
+        print(render_patterns(fetch_patterns(kind=args.kind, limit=args.limit)))
+        return 0
 
     configure_logging(settings.log_level, settings.log_format)
 
