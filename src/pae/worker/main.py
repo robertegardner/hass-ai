@@ -1,6 +1,6 @@
 from prometheus_client import start_http_server
 from redis import Redis
-from rq import Queue, Worker
+from rq import Queue, SimpleWorker
 
 import pae.metrics  # noqa: F401 — registers pae_* metrics in the default registry
 from pae.config import get_settings
@@ -24,4 +24,6 @@ def run_worker() -> None:
         metrics_port=settings.worker_metrics_port,
         mine_hour_utc=settings.miner_run_hour_utc,
     )
-    Worker([queue], connection=connection).work()
+    # SimpleWorker runs jobs in-process so pae_miner_* metrics land in the registry
+    # served on :9100 (the default Worker forks and loses them)
+    SimpleWorker([queue], connection=connection).work()
