@@ -107,3 +107,14 @@ def test_automation_consequent_excluded():
         events.append(ev(d, 19, 0, entity="media_player.tv", state="playing", old="idle"))
         events.append(ev(d, 19, 0, 30, entity="light.den", state="on", triggered_by="automation"))
     assert mine(events) == []
+
+
+def test_low_lift_filtered():
+    # B is so common that following A carries no information:
+    # confidence and pair count pass, the lift gate must reject it
+    events = tv_then_light(5)
+    for d in range(5):
+        for hh in (6, 9, 12, 15):
+            events.append(ev(d, hh, 0, entity="light.den", state="on"))
+            events.append(ev(d, hh, 30, entity="light.den", state="off", old="on"))
+    assert mine(events, span_minutes=300.0) == []
