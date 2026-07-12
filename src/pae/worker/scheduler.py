@@ -1,8 +1,9 @@
 """Tiny in-process daily scheduler: enqueue the nightly mining job.
 
 Deliberately not rq-scheduler: one daemon thread sleeps until the next
-HH:00 UTC and enqueues. The per-date job_id makes a same-day worker restart
-idempotent (RQ replaces the job instead of duplicating it).
+HH:00 UTC and enqueues. The per-date job_id plus the miner's idempotent
+upsert make an occasional double-enqueue (e.g. two workers during a deploy
+overlap) harmless.
 """
 import threading
 from collections.abc import Callable
@@ -32,7 +33,10 @@ def run_daily(
         delay = seconds_until_next(hour_utc, now_fn())
         if stop.wait(timeout=delay):
             return
-        enqueue(now_fn())
+        try:
+            enqueue(now_fn())
+        except Exception:
+            log.exception("mine_enqueue_failed")
 
 
 def start_daily_scheduler(queue: Queue, hour_utc: int) -> threading.Event:
