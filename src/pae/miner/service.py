@@ -147,6 +147,7 @@ def run_mining(now: datetime | None = None) -> MiningResult:
             if not events:
                 log.info("mine_no_events", since=since.isoformat())
                 MINER_RUNS.labels(status="ok").inc()
+                MINER_LAST_SUCCESS.set_to_current_time()
                 return MiningResult(0, 0, 0, 0)
 
             observed_dates = {e.time.astimezone(tz).date() for e in events}
