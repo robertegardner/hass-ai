@@ -22,6 +22,8 @@ Phases 0–2 accepted; Phase 3 (LLM proposals) not started.
 - `pae api|worker|ingest|migrate|smoke|mine` — CLI entry points (`src/pae/cli.py`)
 - `pae patterns list [--kind time_of_day|event_pair] [--limit N]` — inspect mined patterns
 - Alembic migrations in `src/pae/db/migrations/`; ingester runs `migrate` on start
+- `uv run --group weather python ha/weather/<script>.py` — weather stack tooling
+  (discovery/helpers/build_dashboard/deploy_dashboard; order + dry-runs in `ha/weather/README.md`)
 
 ## Architecture invariants
 
@@ -38,6 +40,9 @@ Phases 0–2 accepted; Phase 3 (LLM proposals) not started.
   and gate promotion on `temporal_consistency`/`tod_std_minutes`, not just support/lift.
 - LLM (Ollama-only, no cloud) never executes directly; structured JSON validated against
   schema + entity registry before anything touches HA (Phase 3+).
+- `ha/weather/` is standalone from PAE on purpose (PAE's HA client is read-only enforced)
+  and owns ALL `sdr/davis` HA discovery; the sdr-fleet bridge publishes states only —
+  re-adding discovery there creates duplicate entities.
 
 ## Environment facts
 
@@ -63,3 +68,15 @@ Phases 0–2 accepted; Phase 3 (LLM proposals) not started.
   `pae_miner_*` metrics from the registry served on :9100.
 - External device schedules (Pentair `switch.pool_2`, the dusk-to-dawn switch cluster)
   emit `manual` events — they dominate naive pattern lift; see miner invariants.
+- MQTT discovery payloads must set `object_id`, or HA derives entity ids from
+  area+device+name (`binary_sensor.outside_davis_vantage_pro2_plus_...`).
+- The weather dashboard is generated — edit `build_dashboard.py`, rebuild, redeploy;
+  never hand-edit it in HA.
+- Davis bridge code lives in `~/projects/sdr-fleet/profiles/davis/`, runs on `sdr-indoor`
+  (via thebeast jump `deploy@192.168.6.163` → `root@192.168.6.90`);
+  `deploy-agent.sh sdr-indoor` does NOT restart `sdr@DAVIS1.service` — restart manually.
+- The Davis ISS can brownout-reboot onto another TX id (2026-07-13, weak battery);
+  `davis-watchdog.timer` on sdr-indoor auto-retunes `DAVIS_TR`. Battery is a low-bit
+  only (byte 0 bit 3) — no voltage OTA.
+- paho-mqtt: subscribe inside `on_connect` — a subscribe right after `connect()` is
+  silently lost.
