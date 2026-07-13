@@ -1,0 +1,1170 @@
+{
+ "button_card_templates": {
+  "glass": {
+   "show_name": false,
+   "show_icon": false,
+   "show_state": false,
+   "show_label": false,
+   "styles": {
+    "card": [
+     {
+      "background": "rgba(140,165,215,0.055)"
+     },
+     {
+      "border": "1px solid rgba(150,175,225,0.13)"
+     },
+     {
+      "border-radius": "22px"
+     },
+     {
+      "backdrop-filter": "blur(14px) saturate(1.2)"
+     },
+     {
+      "-webkit-backdrop-filter": "blur(14px) saturate(1.2)"
+     },
+     {
+      "box-shadow": "0 8px 30px rgba(0,0,0,0.35)"
+     },
+     {
+      "color": "#eef2fa"
+     },
+     {
+      "font-family": "-apple-system, BlinkMacSystemFont, \"SF Pro Display\", Roboto, \"Segoe UI\", \"Noto Sans\", sans-serif"
+     },
+     {
+      "padding": "16px 18px"
+     },
+     {
+      "height": "100%"
+     },
+     {
+      "box-sizing": "border-box"
+     }
+    ]
+   }
+  },
+  "metric_tile": {
+   "template": "glass",
+   "styles": {
+    "card": [
+     {
+      "border-top": "[[[ return '1px solid ' + (function(){ var t = parseFloat(states['sensor.davis_temperature'] ? states['sensor.davis_temperature'].state : 'NaN'); var w = states['weather.kmocapeg36']; var cond = w ? w.state : ''; if (isNaN(t)) return 'hsl(215 25% 62% / 0.55)'; var f = Math.min(1, Math.max(0, (t - 10) / 85)); var h = 225 - f * 213, s = 65, l = 68; if (['rainy','pouring','lightning','lightning-rainy'].indexOf(cond) >= 0) { h = 205; s = 70; } if (['snowy','snowy-rainy','hail'].indexOf(cond) >= 0) { h = 210; s = 30; l = 80; } if (['fog','cloudy'].indexOf(cond) >= 0) { s = 25; } return 'hsl(' + h + ' ' + s + '% ' + l + '% / 0.55)'; })() ]]]"
+     }
+    ],
+    "grid": [
+     {
+      "grid-template-areas": "\"eyebrow glyph\" \"value glyph\" \"sub sub\" \"extra extra\""
+     },
+     {
+      "grid-template-columns": "1fr auto"
+     },
+     {
+      "grid-template-rows": "auto 1fr auto auto"
+     },
+     {
+      "gap": "2px"
+     },
+     {
+      "height": "100%"
+     }
+    ],
+    "custom_fields": {
+     "eyebrow": [
+      {
+       "font-size": "11px"
+      },
+      {
+       "font-weight": "500"
+      },
+      {
+       "letter-spacing": "0.12em"
+      },
+      {
+       "text-transform": "uppercase"
+      },
+      {
+       "color": "rgba(238,242,250,0.52)"
+      },
+      {
+       "justify-self": "start"
+      }
+     ],
+     "value": [
+      {
+       "font-size": "30px"
+      },
+      {
+       "font-weight": "300"
+      },
+      {
+       "font-variant-numeric": "tabular-nums"
+      },
+      {
+       "letter-spacing": "-0.01em"
+      },
+      {
+       "justify-self": "start"
+      },
+      {
+       "align-self": "center"
+      },
+      {
+       "line-height": "1.15"
+      }
+     ],
+     "sub": [
+      {
+       "font-size": "12.5px"
+      },
+      {
+       "color": "rgba(238,242,250,0.52)"
+      },
+      {
+       "justify-self": "start"
+      },
+      {
+       "font-variant-numeric": "tabular-nums"
+      }
+     ],
+     "glyph": [
+      {
+       "align-self": "start"
+      },
+      {
+       "justify-self": "end"
+      }
+     ],
+     "extra": [
+      {
+       "width": "100%"
+      }
+     ]
+    }
+   }
+  }
+ },
+ "wallpanel": {
+  "enabled": false,
+  "fullscreen": true,
+  "hide_toolbar": true,
+  "hide_sidebar": true,
+  "keep_screen_on": true,
+  "idle_time": 0
+ },
+ "views": [
+  {
+   "title": "Now",
+   "path": "now",
+   "icon": "mdi:weather-partly-cloudy",
+   "type": "custom:grid-layout",
+   "background": "radial-gradient(ellipse 120% 80% at 50% -10%, #0b1322 0%, #060b15 55%, #04070d 100%) fixed",
+   "layout": {
+    "grid-template-columns": "repeat(6, 1fr)",
+    "grid-template-rows": "auto auto auto auto auto",
+    "grid-template-areas": "\"hero hero hourly hourly hourly hourly\" \"hero hero daily daily daily daily\" \"wind rain press humid uv sun\" \"rose rose chart_temp chart_temp chart_rainwind chart_rainwind\" \"foot foot foot foot foot foot\"",
+    "grid-gap": "14px",
+    "margin": "18px",
+    "mediaquery": {
+     "(max-width: 640px)": {
+      "grid-template-columns": "1fr 1fr",
+      "grid-template-areas": "\"hero hero\" \"hourly hourly\" \"daily daily\" \"wind rain\" \"press humid\" \"uv sun\" \"rose rose\" \"chart_temp chart_temp\" \"chart_rainwind chart_rainwind\" \"foot foot\"",
+      "grid-gap": "10px",
+      "margin": "10px"
+     },
+     "(max-width: 1099px)": {
+      "grid-template-columns": "repeat(3, 1fr)",
+      "grid-template-areas": "\"hero hero hero\" \"hourly hourly hourly\" \"daily daily daily\" \"wind rain press\" \"humid uv sun\" \"rose chart_temp chart_temp\" \"rose chart_rainwind chart_rainwind\" \"foot foot foot\"",
+      "grid-gap": "12px",
+      "margin": "14px"
+     }
+    }
+   },
+   "cards": [
+    {
+     "type": "custom:button-card",
+     "template": "glass",
+     "entity": "sensor.davis_temperature",
+     "view_layout": {
+      "grid-area": "hero"
+     },
+     "styles": {
+      "card": [
+       {
+        "padding": "22px 26px"
+       }
+      ],
+      "grid": [
+       {
+        "grid-template-areas": "\"icon\" \"temp\" \"meta\" \"hilo\""
+       },
+       {
+        "grid-template-rows": "auto 1fr auto auto"
+       },
+       {
+        "justify-items": "start"
+       },
+       {
+        "gap": "4px"
+       },
+       {
+        "height": "100%"
+       }
+      ],
+      "custom_fields": {
+       "temp": [
+        {
+         "font-size": "clamp(72px, 8.5vw, 128px)"
+        },
+        {
+         "max-width": "100%"
+        },
+        {
+         "font-weight": "200"
+        },
+        {
+         "letter-spacing": "-0.03em"
+        },
+        {
+         "line-height": "0.95"
+        },
+        {
+         "font-variant-numeric": "tabular-nums"
+        },
+        {
+         "text-shadow": "[[[ return '0 0 60px ' + (function(){ var t = parseFloat(states['sensor.davis_temperature'] ? states['sensor.davis_temperature'].state : 'NaN'); var w = states['weather.kmocapeg36']; var cond = w ? w.state : ''; if (isNaN(t)) return 'hsl(215 25% 62% / 0.45)'; var f = Math.min(1, Math.max(0, (t - 10) / 85)); var h = 225 - f * 213, s = 65, l = 68; if (['rainy','pouring','lightning','lightning-rainy'].indexOf(cond) >= 0) { h = 205; s = 70; } if (['snowy','snowy-rainy','hail'].indexOf(cond) >= 0) { h = 210; s = 30; l = 80; } if (['fog','cloudy'].indexOf(cond) >= 0) { s = 25; } return 'hsl(' + h + ' ' + s + '% ' + l + '% / 0.45)'; })() ]]]"
+        }
+       ],
+       "meta": [
+        {
+         "font-size": "17px"
+        },
+        {
+         "color": "rgba(238,242,250,0.52)"
+        },
+        {
+         "font-weight": "400"
+        }
+       ],
+       "hilo": [
+        {
+         "font-size": "15px"
+        },
+        {
+         "color": "rgba(238,242,250,0.52)"
+        },
+        {
+         "font-variant-numeric": "tabular-nums"
+        }
+       ]
+      }
+     },
+     "custom_fields": {
+      "icon": "[[[\nvar w = states['weather.kmocapeg36'];\nvar sun = states['sun.sun'];\nvar night = sun && sun.state === 'below_horizon';\nvar map = {'clear-night':'mdi:weather-night','cloudy':'mdi:weather-cloudy','fog':'mdi:weather-fog',\n 'hail':'mdi:weather-hail','lightning':'mdi:weather-lightning','lightning-rainy':'mdi:weather-lightning-rainy',\n 'partlycloudy': night ? 'mdi:weather-night-partly-cloudy' : 'mdi:weather-partly-cloudy',\n 'pouring':'mdi:weather-pouring','rainy':'mdi:weather-rainy','snowy':'mdi:weather-snowy',\n 'snowy-rainy':'mdi:weather-snowy-rainy','sunny': night ? 'mdi:weather-night' : 'mdi:weather-sunny',\n 'windy':'mdi:weather-windy','windy-variant':'mdi:weather-windy-variant','exceptional':'mdi:alert-circle-outline'};\nvar icon = w ? (map[w.state] || 'mdi:weather-partly-cloudy') : 'mdi:weather-partly-cloudy';\nvar c = (function(){ var t = parseFloat(states['sensor.davis_temperature'] ? states['sensor.davis_temperature'].state : 'NaN'); var w = states['weather.kmocapeg36']; var cond = w ? w.state : ''; if (isNaN(t)) return 'hsl(215 25% 62% / 0.95)'; var f = Math.min(1, Math.max(0, (t - 10) / 85)); var h = 225 - f * 213, s = 65, l = 68; if (['rainy','pouring','lightning','lightning-rainy'].indexOf(cond) >= 0) { h = 205; s = 70; } if (['snowy','snowy-rainy','hail'].indexOf(cond) >= 0) { h = 210; s = 30; l = 80; } if (['fog','cloudy'].indexOf(cond) >= 0) { s = 25; } return 'hsl(' + h + ' ' + s + '% ' + l + '% / 0.95)'; })();\nreturn '<ha-icon icon=\"' + icon + '\" style=\"--mdc-icon-size:50px;color:' + c + '\"></ha-icon>';\n]]]",
+      "temp": "[[[\nvar t = (isNaN(parseFloat(states['sensor.davis_temperature'] ? states['sensor.davis_temperature'].state : 'NaN')) ? '–' : parseFloat(states['sensor.davis_temperature'].state).toFixed(1));\nreturn t + '<span style=\"font-size:0.38em;font-weight:300;color:rgba(238,242,250,0.52);vertical-align:super\">°F</span>';\n]]]",
+      "meta": "[[[\nvar w = states['weather.kmocapeg36'];\nvar cond = w ? w.state.replace(/-/g, ' ') : '';\ncond = cond.replace('partlycloudy','partly cloudy');\ncond = cond.charAt(0).toUpperCase() + cond.slice(1);\nvar f = (isNaN(parseFloat(states['sensor.davis_feels_like'] ? states['sensor.davis_feels_like'].state : 'NaN')) ? '–' : parseFloat(states['sensor.davis_feels_like'].state).toFixed(0));\nreturn cond + '<span style=\"color:rgba(238,242,250,0.30)\">  ·  </span>Feels ' + f + '°';\n]]]",
+      "hilo": "[[[\nvar hi = (isNaN(parseFloat(states['sensor.kmocapeg36_forecast_temperature_0d'] ? states['sensor.kmocapeg36_forecast_temperature_0d'].state : 'NaN')) ? '–' : parseFloat(states['sensor.kmocapeg36_forecast_temperature_0d'].state).toFixed(0));\nvar lo = (isNaN(parseFloat(states['sensor.kmocapeg36_forecast_temperature_1n'] ? states['sensor.kmocapeg36_forecast_temperature_1n'].state : 'NaN')) ? '–' : parseFloat(states['sensor.kmocapeg36_forecast_temperature_1n'].state).toFixed(0));\nvar out = [];\nif (hi !== '–') out.push('H ' + hi + '°');\nif (lo !== '–') out.push('L ' + lo + '°');\nreturn out.join('<span style=\"color:rgba(238,242,250,0.30)\">  ·  </span>');\n]]]"
+     }
+    },
+    {
+     "type": "custom:hourly-weather",
+     "entity": "weather.pirateweather",
+     "num_segments": 12,
+     "name": " ",
+     "view_layout": {
+      "grid-area": "hourly"
+     },
+     "label_spacing": 2,
+     "card_mod": {
+      "style": "\nha-card {\n  background: rgba(140,165,215,0.055);\n  border: 1px solid rgba(150,175,225,0.13);\n  border-radius: 22px;\n  backdrop-filter: blur(14px) saturate(1.2);\n  -webkit-backdrop-filter: blur(14px) saturate(1.2);\n  box-shadow: 0 8px 30px rgba(0,0,0,0.35);\n  color: #eef2fa;\n  font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", Roboto, \"Segoe UI\", \"Noto Sans\", sans-serif;\n  --primary-text-color: #eef2fa;\n  --secondary-text-color: rgba(238,242,250,0.52);\n  --divider-color: rgba(150,175,225,0.13);\n  --ha-card-background: transparent;\n}\nha-card { padding: 10px 16px; } .card-header { display: none; }"
+     }
+    },
+    {
+     "type": "weather-forecast",
+     "entity": "weather.kmocapeg36",
+     "forecast_type": "daily",
+     "show_current": false,
+     "show_forecast": true,
+     "view_layout": {
+      "grid-area": "daily"
+     },
+     "card_mod": {
+      "style": "\nha-card {\n  background: rgba(140,165,215,0.055);\n  border: 1px solid rgba(150,175,225,0.13);\n  border-radius: 22px;\n  backdrop-filter: blur(14px) saturate(1.2);\n  -webkit-backdrop-filter: blur(14px) saturate(1.2);\n  box-shadow: 0 8px 30px rgba(0,0,0,0.35);\n  color: #eef2fa;\n  font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", Roboto, \"Segoe UI\", \"Noto Sans\", sans-serif;\n  --primary-text-color: #eef2fa;\n  --secondary-text-color: rgba(238,242,250,0.52);\n  --divider-color: rgba(150,175,225,0.13);\n  --ha-card-background: transparent;\n}\nha-card { padding: 10px 16px; }"
+     }
+    },
+    {
+     "type": "custom:button-card",
+     "template": "metric_tile",
+     "entity": "sensor.davis_wind_speed",
+     "triggers_update": [
+      "sensor.davis_wind_speed",
+      "sensor.davis_wind_gust",
+      "sensor.davis_wind_direction",
+      "sensor.davis_wind_cardinal",
+      "sensor.davis_temperature"
+     ],
+     "view_layout": {
+      "grid-area": "wind"
+     },
+     "custom_fields": {
+      "eyebrow": "Wind",
+      "value": "[[[\nvar card = states['sensor.davis_wind_cardinal'] ? states['sensor.davis_wind_cardinal'].state : '';\nvar v = (isNaN(parseFloat(states['sensor.davis_wind_speed'] ? states['sensor.davis_wind_speed'].state : 'NaN')) ? '–' : parseFloat(states['sensor.davis_wind_speed'].state).toFixed(0));\nreturn card + ' ' + v +\n  '<span style=\"font-size:14px;color:rgba(238,242,250,0.52);font-weight:400\"> mph</span>';\n]]]",
+      "sub": "[[[ return 'Gust ' + (isNaN(parseFloat(states['sensor.davis_wind_gust'] ? states['sensor.davis_wind_gust'].state : 'NaN')) ? '–' : parseFloat(states['sensor.davis_wind_gust'].state).toFixed(0)) + ' mph'; ]]]",
+      "glyph": "[[[\nvar d = parseFloat(states['sensor.davis_wind_direction'] ? states['sensor.davis_wind_direction'].state : 'NaN');\nif (isNaN(d)) return '';\nvar c = (function(){ var t = parseFloat(states['sensor.davis_temperature'] ? states['sensor.davis_temperature'].state : 'NaN'); var w = states['weather.kmocapeg36']; var cond = w ? w.state : ''; if (isNaN(t)) return 'hsl(215 25% 62% / 0.9)'; var f = Math.min(1, Math.max(0, (t - 10) / 85)); var h = 225 - f * 213, s = 65, l = 68; if (['rainy','pouring','lightning','lightning-rainy'].indexOf(cond) >= 0) { h = 205; s = 70; } if (['snowy','snowy-rainy','hail'].indexOf(cond) >= 0) { h = 210; s = 30; l = 80; } if (['fog','cloudy'].indexOf(cond) >= 0) { s = 25; } return 'hsl(' + h + ' ' + s + '% ' + l + '% / 0.9)'; })();\nreturn '<ha-icon icon=\"mdi:navigation\" style=\"--mdc-icon-size:30px;color:' + c +\n  ';transform:rotate(' + ((d + 180) % 360) + 'deg);transition:transform 1s ease\"></ha-icon>';\n]]]"
+     }
+    },
+    {
+     "type": "custom:button-card",
+     "template": "metric_tile",
+     "entity": "sensor.davis_rain_rate",
+     "triggers_update": [
+      "sensor.davis_rain_rate",
+      "sensor.davis_rain_today",
+      "sensor.davis_rain_total",
+      "sensor.davis_temperature"
+     ],
+     "view_layout": {
+      "grid-area": "rain"
+     },
+     "custom_fields": {
+      "eyebrow": "Rain",
+      "value": "[[[\nvar today = parseFloat(states['sensor.davis_rain_today'] ? states['sensor.davis_rain_today'].state : 'NaN');\nvar shown = isNaN(today) ? '0.00' : today.toFixed(2);\nreturn shown + '<span style=\"font-size:14px;color:rgba(238,242,250,0.52);font-weight:400\"> in today</span>';\n]]]",
+      "sub": "[[[\nvar r = parseFloat(states['sensor.davis_rain_rate'] ? states['sensor.davis_rain_rate'].state : 'NaN');\nvar total = (isNaN(parseFloat(states['sensor.davis_rain_total'] ? states['sensor.davis_rain_total'].state : 'NaN')) ? '–' : parseFloat(states['sensor.davis_rain_total'].state).toFixed(2));\nvar rate = isNaN(r) ? '–' : r.toFixed(2);\nvar rateHtml = (r > 0)\n  ? '<span style=\"color:#55c2f0;font-weight:500\">' + rate + ' in/h</span>'\n  : rate + ' in/h';\nreturn 'Rate ' + rateHtml + '<span style=\"color:rgba(238,242,250,0.30)\"> · </span>Total ' + total + ' in';\n]]]",
+      "glyph": "[[[\nvar r = parseFloat(states['sensor.davis_rain_rate'] ? states['sensor.davis_rain_rate'].state : '0');\nvar c = (r > 0) ? '#55c2f0' : 'rgba(238,242,250,0.30)';\nreturn '<ha-icon icon=\"mdi:weather-pouring\" style=\"--mdc-icon-size:22px;color:' + c + '\"></ha-icon>';\n]]]"
+     },
+     "styles": {
+      "card": [
+       {
+        "border-top": "[[[ var r = parseFloat(states['sensor.davis_rain_rate'] ? states['sensor.davis_rain_rate'].state : '0'); return '1px solid ' + (r > 0 ? '#55c2f0' : (function(){ var t = parseFloat(states['sensor.davis_temperature'] ? states['sensor.davis_temperature'].state : 'NaN'); var w = states['weather.kmocapeg36']; var cond = w ? w.state : ''; if (isNaN(t)) return 'hsl(215 25% 62% / 0.55)'; var f = Math.min(1, Math.max(0, (t - 10) / 85)); var h = 225 - f * 213, s = 65, l = 68; if (['rainy','pouring','lightning','lightning-rainy'].indexOf(cond) >= 0) { h = 205; s = 70; } if (['snowy','snowy-rainy','hail'].indexOf(cond) >= 0) { h = 210; s = 30; l = 80; } if (['fog','cloudy'].indexOf(cond) >= 0) { s = 25; } return 'hsl(' + h + ' ' + s + '% ' + l + '% / 0.55)'; })()); ]]]"
+       }
+      ]
+     }
+    },
+    {
+     "type": "custom:button-card",
+     "template": "metric_tile",
+     "entity": "sensor.weewx_barometric_pressure",
+     "triggers_update": [
+      "sensor.weewx_barometric_pressure",
+      "sensor.davis_pressure_trend",
+      "sensor.davis_pressure_derivative",
+      "sensor.davis_temperature"
+     ],
+     "view_layout": {
+      "grid-area": "press"
+     },
+     "custom_fields": {
+      "eyebrow": "Pressure",
+      "value": "[[[ var v = (isNaN(parseFloat(states['sensor.weewx_barometric_pressure'] ? states['sensor.weewx_barometric_pressure'].state : 'NaN')) ? '–' : parseFloat(states['sensor.weewx_barometric_pressure'].state).toFixed(2)); return v + '<span style=\"font-size:14px;color:rgba(238,242,250,0.52);font-weight:400\"> inHg</span>'; ]]]",
+      "sub": "[[[\nvar trend = states['sensor.davis_pressure_trend'] ? states['sensor.davis_pressure_trend'].state : 'unknown';\nvar d = parseFloat(states['sensor.davis_pressure_derivative'] ? states['sensor.davis_pressure_derivative'].state : 'NaN');\nvar word = trend.charAt(0).toUpperCase() + trend.slice(1);\nvar rate = isNaN(d) ? '' : '<span style=\"color:rgba(238,242,250,0.30)\"> · </span>' +\n  (d >= 0 ? '+' : '') + d.toFixed(3) + ' inHg/h';\nreturn word + rate;\n]]]",
+      "glyph": "[[[\nvar trend = states['sensor.davis_pressure_trend'] ? states['sensor.davis_pressure_trend'].state : 'unknown';\nvar d = parseFloat(states['sensor.davis_pressure_derivative'] ? states['sensor.davis_pressure_derivative'].state : '0');\nvar icon = trend === 'rising' ? 'mdi:arrow-top-right' :\n           trend === 'falling' ? 'mdi:arrow-bottom-right' : 'mdi:arrow-right';\nvar c = (trend === 'falling' && d < -0.06) ? '#ffb454' :\n        trend === 'rising' ? (function(){ var t = parseFloat(states['sensor.davis_temperature'] ? states['sensor.davis_temperature'].state : 'NaN'); var w = states['weather.kmocapeg36']; var cond = w ? w.state : ''; if (isNaN(t)) return 'hsl(215 25% 62% / 0.9)'; var f = Math.min(1, Math.max(0, (t - 10) / 85)); var h = 225 - f * 213, s = 65, l = 68; if (['rainy','pouring','lightning','lightning-rainy'].indexOf(cond) >= 0) { h = 205; s = 70; } if (['snowy','snowy-rainy','hail'].indexOf(cond) >= 0) { h = 210; s = 30; l = 80; } if (['fog','cloudy'].indexOf(cond) >= 0) { s = 25; } return 'hsl(' + h + ' ' + s + '% ' + l + '% / 0.9)'; })() : 'rgba(238,242,250,0.52)';\nreturn '<ha-icon icon=\"' + icon + '\" style=\"--mdc-icon-size:22px;color:' + c + '\"></ha-icon>';\n]]]",
+      "extra": {
+       "card": {
+        "type": "custom:mini-graph-card",
+        "entities": [
+         "sensor.weewx_barometric_pressure"
+        ],
+        "hours_to_show": 24,
+        "points_per_hour": 2,
+        "line_width": 2,
+        "height": 42,
+        "line_color": "rgba(150,175,225,0.65)",
+        "show": {
+         "name": false,
+         "icon": false,
+         "state": false,
+         "legend": false,
+         "labels": false,
+         "points": false,
+         "fill": "fade"
+        },
+        "card_mod": {
+         "style": "\nha-card {\n  background: none !important;\n  border: none !important;\n  box-shadow: none !important;\n}\n"
+        }
+       }
+      }
+     }
+    },
+    {
+     "type": "custom:button-card",
+     "template": "metric_tile",
+     "entity": "sensor.davis_humidity",
+     "triggers_update": [
+      "sensor.davis_humidity",
+      "sensor.davis_dewpoint",
+      "sensor.davis_temperature"
+     ],
+     "view_layout": {
+      "grid-area": "humid"
+     },
+     "custom_fields": {
+      "eyebrow": "Humidity",
+      "value": "[[[ var v = (isNaN(parseFloat(states['sensor.davis_humidity'] ? states['sensor.davis_humidity'].state : 'NaN')) ? '–' : parseFloat(states['sensor.davis_humidity'].state).toFixed(0)); return v + '<span style=\"font-size:14px;color:rgba(238,242,250,0.52);font-weight:400\"> %</span>'; ]]]",
+      "sub": "[[[\nvar dp = parseFloat(states['sensor.davis_dewpoint'] ? states['sensor.davis_dewpoint'].state : 'NaN');\nif (isNaN(dp)) return 'Dewpoint –';\nvar word = dp <= 55 ? 'Dry' : dp <= 62 ? 'Comfortable' : dp <= 68 ? 'Sticky' : 'Oppressive';\nreturn 'Dew ' + dp.toFixed(0) + '°<span style=\"color:rgba(238,242,250,0.30)\"> · </span>' + word;\n]]]",
+      "glyph": "[[[ return '<ha-icon icon=\"mdi:water-percent\" style=\"--mdc-icon-size:22px;color:rgba(238,242,250,0.30)\"></ha-icon>'; ]]]"
+     }
+    },
+    {
+     "type": "custom:button-card",
+     "template": "metric_tile",
+     "entity": "sensor.davis_uv",
+     "triggers_update": [
+      "sensor.davis_uv",
+      "sensor.davis_solar_radiation",
+      "sun.sun",
+      "sensor.davis_temperature"
+     ],
+     "view_layout": {
+      "grid-area": "uv"
+     },
+     "styles": {
+      "card": [
+       {
+        "opacity": "[[[ var s = states['sun.sun']; return (s && s.state === 'below_horizon') ? '0.45' : '1'; ]]]"
+       }
+      ]
+     },
+     "custom_fields": {
+      "eyebrow": "UV · Solar",
+      "value": "[[[\nvar uv = parseFloat(states['sensor.davis_uv'] ? states['sensor.davis_uv'].state : 'NaN');\nif (isNaN(uv)) return '–';\nvar band = uv < 3 ? 'Low' : uv < 6 ? 'Moderate' : uv < 8 ? 'High' : uv < 11 ? 'Very high' : 'Extreme';\nreturn uv.toFixed(1) + '<span style=\"font-size:14px;color:rgba(238,242,250,0.52);font-weight:400\"> UV · ' + band + '</span>';\n]]]",
+      "sub": "[[[ return (isNaN(parseFloat(states['sensor.davis_solar_radiation'] ? states['sensor.davis_solar_radiation'].state : 'NaN')) ? '–' : parseFloat(states['sensor.davis_solar_radiation'].state).toFixed(0)) + ' W/m² solar'; ]]]",
+      "glyph": "[[[\nvar s = parseFloat(states['sensor.davis_solar_radiation'] ? states['sensor.davis_solar_radiation'].state : '0');\nvar pct = Math.min(100, Math.max(0, s / 10));\nvar c = (function(){ var t = parseFloat(states['sensor.davis_temperature'] ? states['sensor.davis_temperature'].state : 'NaN'); var w = states['weather.kmocapeg36']; var cond = w ? w.state : ''; if (isNaN(t)) return 'hsl(215 25% 62% / 0.85)'; var f = Math.min(1, Math.max(0, (t - 10) / 85)); var h = 225 - f * 213, s = 65, l = 68; if (['rainy','pouring','lightning','lightning-rainy'].indexOf(cond) >= 0) { h = 205; s = 70; } if (['snowy','snowy-rainy','hail'].indexOf(cond) >= 0) { h = 210; s = 30; l = 80; } if (['fog','cloudy'].indexOf(cond) >= 0) { s = 25; } return 'hsl(' + h + ' ' + s + '% ' + l + '% / 0.85)'; })();\nreturn '<div style=\"width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;' +\n  'background:conic-gradient(' + c + ' ' + pct + '%, rgba(150,175,225,0.12) ' + pct + '%)\">' +\n  '<div style=\"width:26px;height:26px;border-radius:50%;background:#0a111e;display:flex;align-items:center;justify-content:center\">' +\n  '<ha-icon icon=\"mdi:white-balance-sunny\" style=\"--mdc-icon-size:14px;color:rgba(238,242,250,0.52)\"></ha-icon></div></div>';\n]]]"
+     }
+    },
+    {
+     "type": "custom:windrose-card",
+     "view_layout": {
+      "grid-area": "rose"
+     },
+     "data_period": {
+      "period_back": "-24h"
+     },
+     "wind_direction_entity": {
+      "entity": "sensor.davis_wind_direction"
+     },
+     "windspeed_entities": [
+      {
+       "entity": "sensor.davis_wind_speed",
+       "name": "Speed",
+       "speed_unit": "mph"
+      }
+     ],
+     "card_mod": {
+      "style": "\nha-card {\n  background: rgba(140,165,215,0.055);\n  border: 1px solid rgba(150,175,225,0.13);\n  border-radius: 22px;\n  backdrop-filter: blur(14px) saturate(1.2);\n  -webkit-backdrop-filter: blur(14px) saturate(1.2);\n  box-shadow: 0 8px 30px rgba(0,0,0,0.35);\n  color: #eef2fa;\n  font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", Roboto, \"Segoe UI\", \"Noto Sans\", sans-serif;\n  --primary-text-color: #eef2fa;\n  --secondary-text-color: rgba(238,242,250,0.52);\n  --divider-color: rgba(150,175,225,0.13);\n  --ha-card-background: transparent;\n}\n"
+     }
+    },
+    {
+     "type": "custom:horizon-card",
+     "moon": true,
+     "view_layout": {
+      "grid-area": "sun"
+     },
+     "fields": {
+      "sunrise": true,
+      "sunset": true,
+      "dawn": false,
+      "dusk": false
+     },
+     "card_mod": {
+      "style": "\nha-card {\n  background: rgba(140,165,215,0.055);\n  border: 1px solid rgba(150,175,225,0.13);\n  border-radius: 22px;\n  backdrop-filter: blur(14px) saturate(1.2);\n  -webkit-backdrop-filter: blur(14px) saturate(1.2);\n  box-shadow: 0 8px 30px rgba(0,0,0,0.35);\n  color: #eef2fa;\n  font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", Roboto, \"Segoe UI\", \"Noto Sans\", sans-serif;\n  --primary-text-color: #eef2fa;\n  --secondary-text-color: rgba(238,242,250,0.52);\n  --divider-color: rgba(150,175,225,0.13);\n  --ha-card-background: transparent;\n}\n\nha-card {\n  --hc-sun-color: hsl(45 80% 70%);\n  --hc-moon-color: rgba(238,242,250,0.75);\n  --hc-lines-color: rgba(150,175,225,0.25);\n  padding: 8px 14px;\n}\n"
+     }
+    },
+    {
+     "type": "custom:apexcharts-card",
+     "view_layout": {
+      "grid-area": "chart_temp"
+     },
+     "graph_span": "24h",
+     "update_interval": "120s",
+     "cache": true,
+     "header": {
+      "show": true,
+      "title": "Temperature · 24h",
+      "show_states": false
+     },
+     "apex_config": {
+      "chart": {
+       "animations": {
+        "enabled": false
+       },
+       "toolbar": {
+        "show": false
+       },
+       "fontFamily": "-apple-system, BlinkMacSystemFont, \"SF Pro Display\", Roboto, \"Segoe UI\", \"Noto Sans\", sans-serif"
+      },
+      "grid": {
+       "borderColor": "rgba(150,175,225,0.10)",
+       "strokeDashArray": 3
+      },
+      "xaxis": {
+       "labels": {
+        "style": {
+         "colors": "rgba(238,242,250,0.45)",
+         "fontSize": "10px"
+        }
+       },
+       "axisBorder": {
+        "show": false
+       },
+       "axisTicks": {
+        "show": false
+       }
+      },
+      "yaxis": {
+       "labels": {
+        "style": {
+         "colors": "rgba(238,242,250,0.45)",
+         "fontSize": "10px"
+        }
+       }
+      },
+      "tooltip": {
+       "theme": "dark"
+      },
+      "legend": {
+       "labels": {
+        "colors": "rgba(238,242,250,0.62)"
+       },
+       "fontSize": "11px"
+      },
+      "dataLabels": {
+       "enabled": false
+      }
+     },
+     "series": [
+      {
+       "entity": "sensor.davis_temperature",
+       "name": "Outside",
+       "type": "area",
+       "stroke_width": 2.5,
+       "opacity": 0.18,
+       "color_threshold": [
+        {
+         "value": -20,
+         "color": "hsl(225 65% 68%)"
+        },
+        {
+         "value": 10,
+         "color": "hsl(225 65% 68%)"
+        },
+        {
+         "value": 32,
+         "color": "hsl(200 60% 66%)"
+        },
+        {
+         "value": 50,
+         "color": "hsl(170 45% 60%)"
+        },
+        {
+         "value": 65,
+         "color": "hsl(110 40% 62%)"
+        },
+        {
+         "value": 78,
+         "color": "hsl(55 60% 62%)"
+        },
+        {
+         "value": 88,
+         "color": "hsl(28 70% 62%)"
+        },
+        {
+         "value": 95,
+         "color": "hsl(12 65% 62%)"
+        }
+       ],
+       "group_by": {
+        "func": "avg",
+        "duration": "10min"
+       }
+      },
+      {
+       "entity": "sensor.davis_dewpoint",
+       "name": "Dewpoint",
+       "type": "line",
+       "stroke_width": 1.5,
+       "color": "rgba(238,242,250,0.35)",
+       "group_by": {
+        "func": "avg",
+        "duration": "10min"
+       }
+      },
+      {
+       "entity": "sensor.davis_feels_like",
+       "name": "Feels like",
+       "type": "line",
+       "stroke_width": 1.5,
+       "stroke_dash": 4,
+       "color": "rgba(238,242,250,0.55)",
+       "group_by": {
+        "func": "avg",
+        "duration": "10min"
+       }
+      }
+     ],
+     "card_mod": {
+      "style": "\nha-card {\n  background: rgba(140,165,215,0.055);\n  border: 1px solid rgba(150,175,225,0.13);\n  border-radius: 22px;\n  backdrop-filter: blur(14px) saturate(1.2);\n  -webkit-backdrop-filter: blur(14px) saturate(1.2);\n  box-shadow: 0 8px 30px rgba(0,0,0,0.35);\n  color: #eef2fa;\n  font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", Roboto, \"Segoe UI\", \"Noto Sans\", sans-serif;\n  --primary-text-color: #eef2fa;\n  --secondary-text-color: rgba(238,242,250,0.52);\n  --divider-color: rgba(150,175,225,0.13);\n  --ha-card-background: transparent;\n}\n\nha-card { padding: 12px 8px 4px 8px; }\n#header__title {\n  font-size: 11px; font-weight: 500; letter-spacing: 0.12em;\n  text-transform: uppercase; color: rgba(238,242,250,0.52); padding: 4px 12px 0 12px;\n}\n"
+     }
+    },
+    {
+     "type": "custom:apexcharts-card",
+     "view_layout": {
+      "grid-area": "chart_rainwind"
+     },
+     "graph_span": "24h",
+     "update_interval": "120s",
+     "cache": true,
+     "header": {
+      "show": true,
+      "title": "Rain · Wind · 24h",
+      "show_states": false
+     },
+     "apex_config": {
+      "chart": {
+       "animations": {
+        "enabled": false
+       },
+       "toolbar": {
+        "show": false
+       },
+       "fontFamily": "-apple-system, BlinkMacSystemFont, \"SF Pro Display\", Roboto, \"Segoe UI\", \"Noto Sans\", sans-serif"
+      },
+      "grid": {
+       "borderColor": "rgba(150,175,225,0.10)",
+       "strokeDashArray": 3
+      },
+      "xaxis": {
+       "labels": {
+        "style": {
+         "colors": "rgba(238,242,250,0.45)",
+         "fontSize": "10px"
+        }
+       },
+       "axisBorder": {
+        "show": false
+       },
+       "axisTicks": {
+        "show": false
+       }
+      },
+      "yaxis": {
+       "labels": {
+        "style": {
+         "colors": "rgba(238,242,250,0.45)",
+         "fontSize": "10px"
+        }
+       }
+      },
+      "tooltip": {
+       "theme": "dark"
+      },
+      "legend": {
+       "labels": {
+        "colors": "rgba(238,242,250,0.62)"
+       },
+       "fontSize": "11px"
+      },
+      "dataLabels": {
+       "enabled": false
+      }
+     },
+     "yaxis": [
+      {
+       "id": "rain",
+       "min": 0,
+       "decimals": 2
+      },
+      {
+       "id": "wind",
+       "opposite": true,
+       "min": 0,
+       "decimals": 0
+      }
+     ],
+     "series": [
+      {
+       "entity": "sensor.davis_rain_rate",
+       "name": "Rain rate",
+       "type": "area",
+       "yaxis_id": "rain",
+       "stroke_width": 2,
+       "opacity": 0.25,
+       "color": "#55c2f0",
+       "group_by": {
+        "func": "max",
+        "duration": "10min"
+       }
+      },
+      {
+       "entity": "sensor.davis_wind_gust",
+       "name": "Gust",
+       "type": "column",
+       "yaxis_id": "wind",
+       "color": "rgba(150,175,225,0.40)",
+       "group_by": {
+        "func": "max",
+        "duration": "30min"
+       }
+      },
+      {
+       "entity": "sensor.davis_wind_speed",
+       "name": "Wind",
+       "type": "line",
+       "yaxis_id": "wind",
+       "stroke_width": 1.5,
+       "color": "rgba(238,242,250,0.45)",
+       "group_by": {
+        "func": "avg",
+        "duration": "10min"
+       }
+      }
+     ],
+     "card_mod": {
+      "style": "\nha-card {\n  background: rgba(140,165,215,0.055);\n  border: 1px solid rgba(150,175,225,0.13);\n  border-radius: 22px;\n  backdrop-filter: blur(14px) saturate(1.2);\n  -webkit-backdrop-filter: blur(14px) saturate(1.2);\n  box-shadow: 0 8px 30px rgba(0,0,0,0.35);\n  color: #eef2fa;\n  font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", Roboto, \"Segoe UI\", \"Noto Sans\", sans-serif;\n  --primary-text-color: #eef2fa;\n  --secondary-text-color: rgba(238,242,250,0.52);\n  --divider-color: rgba(150,175,225,0.13);\n  --ha-card-background: transparent;\n}\n\nha-card { padding: 12px 8px 4px 8px; }\n#header__title {\n  font-size: 11px; font-weight: 500; letter-spacing: 0.12em;\n  text-transform: uppercase; color: rgba(238,242,250,0.52); padding: 4px 12px 0 12px;\n}\n"
+     }
+    },
+    {
+     "type": "custom:button-card",
+     "template": "glass",
+     "entity": "sensor.davis_packets_per_min",
+     "triggers_update": [
+      "sensor.davis_packets_per_min",
+      "sensor.davis_missed_packets",
+      "binary_sensor.davis_fhss_locked",
+      "binary_sensor.davis_battery",
+      "sensor.davis_last_packet"
+     ],
+     "view_layout": {
+      "grid-area": "foot"
+     },
+     "styles": {
+      "card": [
+       {
+        "padding": "12px 18px"
+       },
+       {
+        "min-height": "0"
+       }
+      ],
+      "grid": [
+       {
+        "grid-template-areas": "\"chips\""
+       }
+      ],
+      "custom_fields": {
+       "chips": [
+        {
+         "justify-self": "start"
+        },
+        {
+         "text-align": "left"
+        }
+       ]
+      }
+     },
+     "custom_fields": {
+      "chips": "[[[\nvar pk = parseFloat(states['sensor.davis_packets_per_min'] ? states['sensor.davis_packets_per_min'].state : 'NaN');\nvar mi = parseFloat(states['sensor.davis_missed_packets'] ? states['sensor.davis_missed_packets'].state : 'NaN');\nvar fh = states['binary_sensor.davis_fhss_locked'] ? states['binary_sensor.davis_fhss_locked'].state : 'unknown';\nvar lp = states['sensor.davis_last_packet'] ? states['sensor.davis_last_packet'].state : null;\nvar age = lp ? Math.max(0, (Date.now() - new Date(lp).getTime()) / 1000) : NaN;\nvar chip = function(c, icon, text) {\n  return '<span style=\"display:inline-flex;align-items:center;gap:6px;margin-right:26px;' +\n    'font-size:12.5px;font-variant-numeric:tabular-nums;color:' + c + '\">' +\n    '<ha-icon icon=\"' + icon + '\" style=\"--mdc-icon-size:15px;color:' + c + '\"></ha-icon>' +\n    text + '</span>';\n};\nvar out = '<span style=\"font-size:11px;font-weight:500;letter-spacing:0.12em;' +\n  'text-transform:uppercase;color:rgba(238,242,250,0.30);margin-right:26px\">Station</span>';\nout += chip((isNaN(pk) || pk < 15) ? '#ffb454' : 'rgba(238,242,250,0.52)', 'mdi:radio-tower',\n  (isNaN(pk) ? '–' : pk.toFixed(1)) + ' pkts/min');\nout += chip((isNaN(mi) || mi > 5) ? '#ffb454' : 'rgba(238,242,250,0.52)', 'mdi:radio-off',\n  (isNaN(mi) ? '–' : mi.toFixed(1)) + '% missed');\nout += chip((fh !== 'on') ? '#ffb454' : 'rgba(238,242,250,0.52)', 'mdi:radar',\n  (fh === 'on') ? 'FHSS locked' : 'FHSS unlocked');\nvar bat = states['binary_sensor.davis_battery'] ? states['binary_sensor.davis_battery'].state : 'unknown';\nout += chip((bat === 'off') ? 'rgba(238,242,250,0.52)' : '#ffb454',\n  (bat === 'on') ? 'mdi:battery-alert' : 'mdi:battery',\n  (bat === 'off') ? 'Battery OK' : (bat === 'on') ? 'Battery low' : 'Battery –');\nout += chip((isNaN(age) || age > 300) ? '#ffb454' : 'rgba(238,242,250,0.52)', 'mdi:clock-outline',\n  isNaN(age) ? 'no packets' :\n  (age < 90 ? age.toFixed(0) + ' s ago' : (age / 60).toFixed(0) + ' min ago'));\nreturn out;\n]]]"
+     }
+    }
+   ]
+  },
+  {
+   "title": "Trends",
+   "path": "trends",
+   "icon": "mdi:chart-line",
+   "type": "custom:grid-layout",
+   "background": "radial-gradient(ellipse 120% 80% at 50% -10%, #0b1322 0%, #060b15 55%, #04070d 100%) fixed",
+   "layout": {
+    "grid-template-columns": "1fr 1fr",
+    "grid-gap": "14px",
+    "margin": "18px",
+    "mediaquery": {
+     "(max-width: 900px)": {
+      "grid-template-columns": "1fr",
+      "margin": "10px"
+     }
+    }
+   },
+   "cards": [
+    {
+     "type": "custom:apexcharts-card",
+     "graph_span": "7d",
+     "update_interval": "300s",
+     "cache": true,
+     "header": {
+      "show": true,
+      "title": "Temperature · 7 days",
+      "show_states": false
+     },
+     "apex_config": {
+      "chart": {
+       "animations": {
+        "enabled": false
+       },
+       "toolbar": {
+        "show": false
+       },
+       "fontFamily": "-apple-system, BlinkMacSystemFont, \"SF Pro Display\", Roboto, \"Segoe UI\", \"Noto Sans\", sans-serif"
+      },
+      "grid": {
+       "borderColor": "rgba(150,175,225,0.10)",
+       "strokeDashArray": 3
+      },
+      "xaxis": {
+       "labels": {
+        "style": {
+         "colors": "rgba(238,242,250,0.45)",
+         "fontSize": "10px"
+        }
+       },
+       "axisBorder": {
+        "show": false
+       },
+       "axisTicks": {
+        "show": false
+       }
+      },
+      "yaxis": {
+       "labels": {
+        "style": {
+         "colors": "rgba(238,242,250,0.45)",
+         "fontSize": "10px"
+        }
+       }
+      },
+      "tooltip": {
+       "theme": "dark"
+      },
+      "legend": {
+       "labels": {
+        "colors": "rgba(238,242,250,0.62)"
+       },
+       "fontSize": "11px"
+      },
+      "dataLabels": {
+       "enabled": false
+      }
+     },
+     "series": [
+      {
+       "entity": "sensor.davis_temperature",
+       "name": "Mean",
+       "type": "line",
+       "stroke_width": 2.5,
+       "color_threshold": [
+        {
+         "value": -20,
+         "color": "hsl(225 65% 68%)"
+        },
+        {
+         "value": 10,
+         "color": "hsl(225 65% 68%)"
+        },
+        {
+         "value": 32,
+         "color": "hsl(200 60% 66%)"
+        },
+        {
+         "value": 50,
+         "color": "hsl(170 45% 60%)"
+        },
+        {
+         "value": 65,
+         "color": "hsl(110 40% 62%)"
+        },
+        {
+         "value": 78,
+         "color": "hsl(55 60% 62%)"
+        },
+        {
+         "value": 88,
+         "color": "hsl(28 70% 62%)"
+        },
+        {
+         "value": 95,
+         "color": "hsl(12 65% 62%)"
+        }
+       ],
+       "statistics": {
+        "type": "mean",
+        "period": "hour"
+       }
+      },
+      {
+       "entity": "sensor.davis_temperature",
+       "name": "Max",
+       "type": "line",
+       "stroke_width": 1,
+       "color": "rgba(238,242,250,0.25)",
+       "statistics": {
+        "type": "max",
+        "period": "hour"
+       }
+      },
+      {
+       "entity": "sensor.davis_temperature",
+       "name": "Min",
+       "type": "line",
+       "stroke_width": 1,
+       "color": "rgba(238,242,250,0.25)",
+       "statistics": {
+        "type": "min",
+        "period": "hour"
+       }
+      }
+     ],
+     "card_mod": {
+      "style": "\nha-card {\n  background: rgba(140,165,215,0.055);\n  border: 1px solid rgba(150,175,225,0.13);\n  border-radius: 22px;\n  backdrop-filter: blur(14px) saturate(1.2);\n  -webkit-backdrop-filter: blur(14px) saturate(1.2);\n  box-shadow: 0 8px 30px rgba(0,0,0,0.35);\n  color: #eef2fa;\n  font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", Roboto, \"Segoe UI\", \"Noto Sans\", sans-serif;\n  --primary-text-color: #eef2fa;\n  --secondary-text-color: rgba(238,242,250,0.52);\n  --divider-color: rgba(150,175,225,0.13);\n  --ha-card-background: transparent;\n}\n\nha-card { padding: 12px 8px 4px 8px; }\n#header__title {\n  font-size: 11px; font-weight: 500; letter-spacing: 0.12em;\n  text-transform: uppercase; color: rgba(238,242,250,0.52); padding: 4px 12px 0 12px;\n}\n"
+     }
+    },
+    {
+     "type": "custom:apexcharts-card",
+     "graph_span": "7d",
+     "update_interval": "300s",
+     "cache": true,
+     "header": {
+      "show": true,
+      "title": "Rain · 7 days",
+      "show_states": false
+     },
+     "apex_config": {
+      "chart": {
+       "animations": {
+        "enabled": false
+       },
+       "toolbar": {
+        "show": false
+       },
+       "fontFamily": "-apple-system, BlinkMacSystemFont, \"SF Pro Display\", Roboto, \"Segoe UI\", \"Noto Sans\", sans-serif"
+      },
+      "grid": {
+       "borderColor": "rgba(150,175,225,0.10)",
+       "strokeDashArray": 3
+      },
+      "xaxis": {
+       "labels": {
+        "style": {
+         "colors": "rgba(238,242,250,0.45)",
+         "fontSize": "10px"
+        }
+       },
+       "axisBorder": {
+        "show": false
+       },
+       "axisTicks": {
+        "show": false
+       }
+      },
+      "yaxis": {
+       "labels": {
+        "style": {
+         "colors": "rgba(238,242,250,0.45)",
+         "fontSize": "10px"
+        }
+       }
+      },
+      "tooltip": {
+       "theme": "dark"
+      },
+      "legend": {
+       "labels": {
+        "colors": "rgba(238,242,250,0.62)"
+       },
+       "fontSize": "11px"
+      },
+      "dataLabels": {
+       "enabled": false
+      }
+     },
+     "series": [
+      {
+       "entity": "sensor.davis_rain_today",
+       "name": "Daily rain",
+       "type": "column",
+       "color": "#55c2f0",
+       "statistics": {
+        "type": "max",
+        "period": "day"
+       }
+      }
+     ],
+     "card_mod": {
+      "style": "\nha-card {\n  background: rgba(140,165,215,0.055);\n  border: 1px solid rgba(150,175,225,0.13);\n  border-radius: 22px;\n  backdrop-filter: blur(14px) saturate(1.2);\n  -webkit-backdrop-filter: blur(14px) saturate(1.2);\n  box-shadow: 0 8px 30px rgba(0,0,0,0.35);\n  color: #eef2fa;\n  font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", Roboto, \"Segoe UI\", \"Noto Sans\", sans-serif;\n  --primary-text-color: #eef2fa;\n  --secondary-text-color: rgba(238,242,250,0.52);\n  --divider-color: rgba(150,175,225,0.13);\n  --ha-card-background: transparent;\n}\n\nha-card { padding: 12px 8px 4px 8px; }\n#header__title {\n  font-size: 11px; font-weight: 500; letter-spacing: 0.12em;\n  text-transform: uppercase; color: rgba(238,242,250,0.52); padding: 4px 12px 0 12px;\n}\n"
+     },
+     "yaxis": [
+      {
+       "min": 0,
+       "decimals": 2
+      }
+     ]
+    },
+    {
+     "type": "custom:apexcharts-card",
+     "graph_span": "7d",
+     "update_interval": "300s",
+     "cache": true,
+     "header": {
+      "show": true,
+      "title": "Pressure · 7 days",
+      "show_states": false
+     },
+     "apex_config": {
+      "chart": {
+       "animations": {
+        "enabled": false
+       },
+       "toolbar": {
+        "show": false
+       },
+       "fontFamily": "-apple-system, BlinkMacSystemFont, \"SF Pro Display\", Roboto, \"Segoe UI\", \"Noto Sans\", sans-serif"
+      },
+      "grid": {
+       "borderColor": "rgba(150,175,225,0.10)",
+       "strokeDashArray": 3
+      },
+      "xaxis": {
+       "labels": {
+        "style": {
+         "colors": "rgba(238,242,250,0.45)",
+         "fontSize": "10px"
+        }
+       },
+       "axisBorder": {
+        "show": false
+       },
+       "axisTicks": {
+        "show": false
+       }
+      },
+      "yaxis": {
+       "labels": {
+        "style": {
+         "colors": "rgba(238,242,250,0.45)",
+         "fontSize": "10px"
+        }
+       }
+      },
+      "tooltip": {
+       "theme": "dark"
+      },
+      "legend": {
+       "labels": {
+        "colors": "rgba(238,242,250,0.62)"
+       },
+       "fontSize": "11px"
+      },
+      "dataLabels": {
+       "enabled": false
+      }
+     },
+     "series": [
+      {
+       "entity": "sensor.weewx_barometric_pressure",
+       "name": "Barometer",
+       "type": "line",
+       "stroke_width": 2,
+       "color": "rgba(150,175,225,0.85)",
+       "statistics": {
+        "type": "mean",
+        "period": "hour"
+       }
+      }
+     ],
+     "card_mod": {
+      "style": "\nha-card {\n  background: rgba(140,165,215,0.055);\n  border: 1px solid rgba(150,175,225,0.13);\n  border-radius: 22px;\n  backdrop-filter: blur(14px) saturate(1.2);\n  -webkit-backdrop-filter: blur(14px) saturate(1.2);\n  box-shadow: 0 8px 30px rgba(0,0,0,0.35);\n  color: #eef2fa;\n  font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", Roboto, \"Segoe UI\", \"Noto Sans\", sans-serif;\n  --primary-text-color: #eef2fa;\n  --secondary-text-color: rgba(238,242,250,0.52);\n  --divider-color: rgba(150,175,225,0.13);\n  --ha-card-background: transparent;\n}\n\nha-card { padding: 12px 8px 4px 8px; }\n#header__title {\n  font-size: 11px; font-weight: 500; letter-spacing: 0.12em;\n  text-transform: uppercase; color: rgba(238,242,250,0.52); padding: 4px 12px 0 12px;\n}\n"
+     }
+    },
+    {
+     "type": "custom:apexcharts-card",
+     "graph_span": "7d",
+     "update_interval": "300s",
+     "cache": true,
+     "header": {
+      "show": true,
+      "title": "Wind · 7 days",
+      "show_states": false
+     },
+     "apex_config": {
+      "chart": {
+       "animations": {
+        "enabled": false
+       },
+       "toolbar": {
+        "show": false
+       },
+       "fontFamily": "-apple-system, BlinkMacSystemFont, \"SF Pro Display\", Roboto, \"Segoe UI\", \"Noto Sans\", sans-serif"
+      },
+      "grid": {
+       "borderColor": "rgba(150,175,225,0.10)",
+       "strokeDashArray": 3
+      },
+      "xaxis": {
+       "labels": {
+        "style": {
+         "colors": "rgba(238,242,250,0.45)",
+         "fontSize": "10px"
+        }
+       },
+       "axisBorder": {
+        "show": false
+       },
+       "axisTicks": {
+        "show": false
+       }
+      },
+      "yaxis": {
+       "labels": {
+        "style": {
+         "colors": "rgba(238,242,250,0.45)",
+         "fontSize": "10px"
+        }
+       }
+      },
+      "tooltip": {
+       "theme": "dark"
+      },
+      "legend": {
+       "labels": {
+        "colors": "rgba(238,242,250,0.62)"
+       },
+       "fontSize": "11px"
+      },
+      "dataLabels": {
+       "enabled": false
+      }
+     },
+     "series": [
+      {
+       "entity": "sensor.davis_wind_gust",
+       "name": "Max gust",
+       "type": "column",
+       "color": "rgba(150,175,225,0.35)",
+       "statistics": {
+        "type": "max",
+        "period": "hour"
+       }
+      },
+      {
+       "entity": "sensor.davis_wind_speed",
+       "name": "Mean wind",
+       "type": "line",
+       "stroke_width": 2,
+       "color": "rgba(238,242,250,0.65)",
+       "statistics": {
+        "type": "mean",
+        "period": "hour"
+       }
+      }
+     ],
+     "card_mod": {
+      "style": "\nha-card {\n  background: rgba(140,165,215,0.055);\n  border: 1px solid rgba(150,175,225,0.13);\n  border-radius: 22px;\n  backdrop-filter: blur(14px) saturate(1.2);\n  -webkit-backdrop-filter: blur(14px) saturate(1.2);\n  box-shadow: 0 8px 30px rgba(0,0,0,0.35);\n  color: #eef2fa;\n  font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", Roboto, \"Segoe UI\", \"Noto Sans\", sans-serif;\n  --primary-text-color: #eef2fa;\n  --secondary-text-color: rgba(238,242,250,0.52);\n  --divider-color: rgba(150,175,225,0.13);\n  --ha-card-background: transparent;\n}\n\nha-card { padding: 12px 8px 4px 8px; }\n#header__title {\n  font-size: 11px; font-weight: 500; letter-spacing: 0.12em;\n  text-transform: uppercase; color: rgba(238,242,250,0.52); padding: 4px 12px 0 12px;\n}\n"
+     },
+     "yaxis": [
+      {
+       "min": 0,
+       "decimals": 0
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

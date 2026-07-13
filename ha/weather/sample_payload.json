@@ -1,0 +1,26 @@
+{
+  "_meta": {
+    "captured": "2026-07-13",
+    "broker": "192.168.6.39",
+    "subscription": "sdr/davis/#",
+    "window_seconds": 80,
+    "total_messages": 137,
+    "notes": "Per-field scalar topics. No barometer or battery voltage in OTA data (Davis ISS does not transmit them); battery_ok (added 2026-07-13) is the battery-low header bit carried in every packet, 1 = OK. rain_tips is the ISS bucket-tip counter (0.01 in per tip, wraps at 128)."
+  },
+  "sdr/davis/temperature_f": "81.6",
+  "sdr/davis/battery_ok": "1",
+  "sdr/davis/humidity": "70.9",
+  "sdr/davis/wind_speed_mph": "0",
+  "sdr/davis/wind_gust_mph": "1",
+  "sdr/davis/wind_dir_deg": "30.9",
+  "sdr/davis/rain_rate_in_hr": "0.0",
+  "sdr/davis/rain_tips": "15",
+  "sdr/davis/uv_index": "0.0",
+  "sdr/davis/solar_wm2": "10.5",
+  "sdr/davis/last_packet_epoch": "1783903885",
+  "sdr/davis/health": {
+    "packets_per_min": 23.6,
+    "missed_ratio": 0.002,
+    "fhss_locked": true
+  }
+}
