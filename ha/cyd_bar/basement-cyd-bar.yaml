@@ -83,7 +83,7 @@ touchscreen:
       x_max: 3860
       y_min: 280
       y_max: 3860
-    on_press:
+    on_touch:
       - light.turn_on:
           id: backlight
           brightness: 100%
