@@ -59,3 +59,5 @@ def test_toggle_and_dim_target_tablet_zones():
     assert toggles == {ZONES["bar"], ZONES["cans"]}
     dims = {c["data"]["entity_id"] for c in _service_calls(cfg, "light.turn_on")}
     assert dims == {ZONES["bar"]}
+    offs = {c["data"]["entity_id"] for c in _service_calls(cfg, "light.turn_off")}
+    assert offs == {ZONES["bar"]}
