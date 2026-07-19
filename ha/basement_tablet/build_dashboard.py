@@ -1,9 +1,9 @@
 """Generate the basement tablet dashboard config (dashboard.json).
 
-Design: "switch panel at night" — charcoal glass, six oversized rounded tiles,
-warm amber glow on whatever is lit, one tall cans-by-row slider column. Built
-for a 10" landscape wall tablet replacing the physical switches: tap = toggle,
-drag a tile = dim, no header, no chrome.
+Design: "switch panel at night" — charcoal glass, six rounded tiles, warm amber
+glow on whatever is lit, one tall cans-by-row slider column. Built for an 8.7"
+1340x800 landscape wall tablet (fullscreen, HA header visible) replacing the
+physical switches: tap = toggle, drag a tile = dim, no chrome.
 
 Never hand-edit the deployed dashboard — change this generator, rebuild, redeploy:
 
@@ -29,7 +29,7 @@ TILE_EDGE = "rgba(255,255,255,0.07)"
 AMBER = "255, 179, 84"          # accent: anything lit glows warm amber
 TEXT_HI = "#f2f0ec"
 TEXT_LO = "rgba(242,240,236,0.55)"
-RADIUS = "28px"
+RADIUS = "22px"
 
 TILE_MOD = f"""
 ha-card {{
@@ -38,11 +38,11 @@ ha-card {{
   border-radius: {RADIUS};
   background: {TILE_BG};
   border: 1px solid {TILE_EDGE};
-  padding: 22px;
-  --icon-size: 58px;
-  --card-primary-font-size: 26px;
+  padding: 14px;
+  --icon-size: 40px;
+  --card-primary-font-size: 20px;
   --card-primary-font-weight: 600;
-  --card-secondary-font-size: 16px;
+  --card-secondary-font-size: 13px;
   --primary-text-color: {TEXT_HI};
   --secondary-text-color: {TEXT_LO};
   --rgb-state-light: {AMBER};
@@ -122,11 +122,11 @@ ha-card {{
   background: none;
   border: none;
   box-shadow: none;
-  --card-primary-font-size: 20px;
-  --card-secondary-font-size: 13px;
+  --card-primary-font-size: 16px;
+  --card-secondary-font-size: 12px;
   --primary-text-color: {TEXT_HI};
   --secondary-text-color: {TEXT_LO};
-  --icon-size: 40px;
+  --icon-size: 32px;
 }}
 """},
     }
@@ -180,13 +180,13 @@ def build() -> dict:
         "badges": [],
         "layout": {
             "grid-template-columns": "1fr 1fr minmax(240px, 22%)",
-            "grid-template-rows": "1fr 1fr 1fr",
+            "grid-template-rows": "repeat(3, minmax(0, 1fr))",
             "grid-template-areas": (
                 '"cans bar rows" "game foyer rows" "bath alloff rows"'
             ),
-            "grid-gap": "18px",
-            "padding": "18px",
-            "height": "100%",
+            "grid-gap": "12px",
+            "padding": "12px",
+            "height": "calc(100vh - var(--header-height, 56px))",
             "mediaquery": {
                 # portrait fallback: single column, slider last
                 "(orientation: portrait)": {

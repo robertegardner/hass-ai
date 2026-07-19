@@ -9,11 +9,11 @@
    "badges": [],
    "layout": {
     "grid-template-columns": "1fr 1fr minmax(240px, 22%)",
-    "grid-template-rows": "1fr 1fr 1fr",
+    "grid-template-rows": "repeat(3, minmax(0, 1fr))",
     "grid-template-areas": "\"cans bar rows\" \"game foyer rows\" \"bath alloff rows\"",
-    "grid-gap": "18px",
-    "padding": "18px",
-    "height": "100%",
+    "grid-gap": "12px",
+    "padding": "12px",
+    "height": "calc(100vh - var(--header-height, 56px))",
     "mediaquery": {
      "(orientation: portrait)": {
       "grid-template-columns": "1fr",
@@ -46,7 +46,7 @@
       "grid-area": "cans"
      },
      "card_mod": {
-      "style": "\nha-card {\n  height: 100%;\n  box-sizing: border-box;\n  border-radius: 28px;\n  background: rgba(255,255,255,0.045);\n  border: 1px solid rgba(255,255,255,0.07);\n  padding: 22px;\n  --icon-size: 58px;\n  --card-primary-font-size: 26px;\n  --card-primary-font-weight: 600;\n  --card-secondary-font-size: 16px;\n  --primary-text-color: #f2f0ec;\n  --secondary-text-color: rgba(242,240,236,0.55);\n  --rgb-state-light: 255, 179, 84;\n  --rgb-state-switch: 255, 179, 84;\n  --rgb-disabled: 120, 120, 120;\n}\n"
+      "style": "\nha-card {\n  height: 100%;\n  box-sizing: border-box;\n  border-radius: 22px;\n  background: rgba(255,255,255,0.045);\n  border: 1px solid rgba(255,255,255,0.07);\n  padding: 14px;\n  --icon-size: 40px;\n  --card-primary-font-size: 20px;\n  --card-primary-font-weight: 600;\n  --card-secondary-font-size: 13px;\n  --primary-text-color: #f2f0ec;\n  --secondary-text-color: rgba(242,240,236,0.55);\n  --rgb-state-light: 255, 179, 84;\n  --rgb-state-switch: 255, 179, 84;\n  --rgb-disabled: 120, 120, 120;\n}\n"
      }
     },
     {
@@ -72,7 +72,7 @@
       "grid-area": "bar"
      },
      "card_mod": {
-      "style": "\nha-card {\n  height: 100%;\n  box-sizing: border-box;\n  border-radius: 28px;\n  background: rgba(255,255,255,0.045);\n  border: 1px solid rgba(255,255,255,0.07);\n  padding: 22px;\n  --icon-size: 58px;\n  --card-primary-font-size: 26px;\n  --card-primary-font-weight: 600;\n  --card-secondary-font-size: 16px;\n  --primary-text-color: #f2f0ec;\n  --secondary-text-color: rgba(242,240,236,0.55);\n  --rgb-state-light: 255, 179, 84;\n  --rgb-state-switch: 255, 179, 84;\n  --rgb-disabled: 120, 120, 120;\n}\n"
+      "style": "\nha-card {\n  height: 100%;\n  box-sizing: border-box;\n  border-radius: 22px;\n  background: rgba(255,255,255,0.045);\n  border: 1px solid rgba(255,255,255,0.07);\n  padding: 14px;\n  --icon-size: 40px;\n  --card-primary-font-size: 20px;\n  --card-primary-font-weight: 600;\n  --card-secondary-font-size: 13px;\n  --primary-text-color: #f2f0ec;\n  --secondary-text-color: rgba(242,240,236,0.55);\n  --rgb-state-light: 255, 179, 84;\n  --rgb-state-switch: 255, 179, 84;\n  --rgb-disabled: 120, 120, 120;\n}\n"
      }
     },
     {
@@ -98,7 +98,7 @@
       "grid-area": "game"
      },
      "card_mod": {
-      "style": "\nha-card {\n  height: 100%;\n  box-sizing: border-box;\n  border-radius: 28px;\n  background: rgba(255,255,255,0.045);\n  border: 1px solid rgba(255,255,255,0.07);\n  padding: 22px;\n  --icon-size: 58px;\n  --card-primary-font-size: 26px;\n  --card-primary-font-weight: 600;\n  --card-secondary-font-size: 16px;\n  --primary-text-color: #f2f0ec;\n  --secondary-text-color: rgba(242,240,236,0.55);\n  --rgb-state-light: 255, 179, 84;\n  --rgb-state-switch: 255, 179, 84;\n  --rgb-disabled: 120, 120, 120;\n}\n"
+      "style": "\nha-card {\n  height: 100%;\n  box-sizing: border-box;\n  border-radius: 22px;\n  background: rgba(255,255,255,0.045);\n  border: 1px solid rgba(255,255,255,0.07);\n  padding: 14px;\n  --icon-size: 40px;\n  --card-primary-font-size: 20px;\n  --card-primary-font-weight: 600;\n  --card-secondary-font-size: 13px;\n  --primary-text-color: #f2f0ec;\n  --secondary-text-color: rgba(242,240,236,0.55);\n  --rgb-state-light: 255, 179, 84;\n  --rgb-state-switch: 255, 179, 84;\n  --rgb-disabled: 120, 120, 120;\n}\n"
      }
     },
     {
@@ -124,7 +124,7 @@
       "grid-area": "foyer"
      },
      "card_mod": {
-      "style": "\nha-card {\n  height: 100%;\n  box-sizing: border-box;\n  border-radius: 28px;\n  background: rgba(255,255,255,0.045);\n  border: 1px solid rgba(255,255,255,0.07);\n  padding: 22px;\n  --icon-size: 58px;\n  --card-primary-font-size: 26px;\n  --card-primary-font-weight: 600;\n  --card-secondary-font-size: 16px;\n  --primary-text-color: #f2f0ec;\n  --secondary-text-color: rgba(242,240,236,0.55);\n  --rgb-state-light: 255, 179, 84;\n  --rgb-state-switch: 255, 179, 84;\n  --rgb-disabled: 120, 120, 120;\n}\n"
+      "style": "\nha-card {\n  height: 100%;\n  box-sizing: border-box;\n  border-radius: 22px;\n  background: rgba(255,255,255,0.045);\n  border: 1px solid rgba(255,255,255,0.07);\n  padding: 14px;\n  --icon-size: 40px;\n  --card-primary-font-size: 20px;\n  --card-primary-font-weight: 600;\n  --card-secondary-font-size: 13px;\n  --primary-text-color: #f2f0ec;\n  --secondary-text-color: rgba(242,240,236,0.55);\n  --rgb-state-light: 255, 179, 84;\n  --rgb-state-switch: 255, 179, 84;\n  --rgb-disabled: 120, 120, 120;\n}\n"
      }
     },
     {
@@ -147,7 +147,7 @@
       "grid-area": "bath"
      },
      "card_mod": {
-      "style": "\nha-card {\n  height: 100%;\n  box-sizing: border-box;\n  border-radius: 28px;\n  background: rgba(255,255,255,0.045);\n  border: 1px solid rgba(255,255,255,0.07);\n  padding: 22px;\n  --icon-size: 58px;\n  --card-primary-font-size: 26px;\n  --card-primary-font-weight: 600;\n  --card-secondary-font-size: 16px;\n  --primary-text-color: #f2f0ec;\n  --secondary-text-color: rgba(242,240,236,0.55);\n  --rgb-state-light: 255, 179, 84;\n  --rgb-state-switch: 255, 179, 84;\n  --rgb-disabled: 120, 120, 120;\n}\n"
+      "style": "\nha-card {\n  height: 100%;\n  box-sizing: border-box;\n  border-radius: 22px;\n  background: rgba(255,255,255,0.045);\n  border: 1px solid rgba(255,255,255,0.07);\n  padding: 14px;\n  --icon-size: 40px;\n  --card-primary-font-size: 20px;\n  --card-primary-font-weight: 600;\n  --card-secondary-font-size: 13px;\n  --primary-text-color: #f2f0ec;\n  --secondary-text-color: rgba(242,240,236,0.55);\n  --rgb-state-light: 255, 179, 84;\n  --rgb-state-switch: 255, 179, 84;\n  --rgb-disabled: 120, 120, 120;\n}\n"
      }
     },
     {
@@ -192,7 +192,7 @@
       "grid-area": "alloff"
      },
      "card_mod": {
-      "style": "\nha-card {\n  height: 100%;\n  box-sizing: border-box;\n  border-radius: 28px;\n  background: rgba(255,255,255,0.045);\n  border: 1px solid rgba(255,255,255,0.07);\n  padding: 22px;\n  --icon-size: 58px;\n  --card-primary-font-size: 26px;\n  --card-primary-font-weight: 600;\n  --card-secondary-font-size: 16px;\n  --primary-text-color: #f2f0ec;\n  --secondary-text-color: rgba(242,240,236,0.55);\n  --rgb-state-light: 255, 179, 84;\n  --rgb-state-switch: 255, 179, 84;\n  --rgb-disabled: 120, 120, 120;\n}\n"
+      "style": "\nha-card {\n  height: 100%;\n  box-sizing: border-box;\n  border-radius: 22px;\n  background: rgba(255,255,255,0.045);\n  border: 1px solid rgba(255,255,255,0.07);\n  padding: 14px;\n  --icon-size: 40px;\n  --card-primary-font-size: 20px;\n  --card-primary-font-weight: 600;\n  --card-secondary-font-size: 13px;\n  --primary-text-color: #f2f0ec;\n  --secondary-text-color: rgba(242,240,236,0.55);\n  --rgb-state-light: 255, 179, 84;\n  --rgb-state-switch: 255, 179, 84;\n  --rgb-disabled: 120, 120, 120;\n}\n"
      }
     },
     {
@@ -210,7 +210,7 @@
         "action": "none"
        },
        "card_mod": {
-        "style": "\nha-card {\n  background: none;\n  border: none;\n  box-shadow: none;\n  --card-primary-font-size: 20px;\n  --card-secondary-font-size: 13px;\n  --primary-text-color: #f2f0ec;\n  --secondary-text-color: rgba(242,240,236,0.55);\n  --icon-size: 40px;\n}\n"
+        "style": "\nha-card {\n  background: none;\n  border: none;\n  box-shadow: none;\n  --card-primary-font-size: 16px;\n  --card-secondary-font-size: 12px;\n  --primary-text-color: #f2f0ec;\n  --secondary-text-color: rgba(242,240,236,0.55);\n  --icon-size: 32px;\n}\n"
        }
       },
       {
@@ -228,7 +228,7 @@
           "width": "100%"
          },
          {
-          "border-radius": "28px"
+          "border-radius": "22px"
          },
          {
           "background": "rgba(255,255,255,0.045)"
@@ -239,7 +239,7 @@
         ],
         "container": [
          {
-          "border-radius": "28px"
+          "border-radius": "22px"
          }
         ],
         "track": [

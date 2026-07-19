@@ -44,6 +44,25 @@ script (like the weather dashboard) — never hand-edited in HA.
 - Aesthetic: dark charcoal background, rounded Mushroom tiles (card-mod), warm amber
   icon/slider glow when a zone is on, large type. No header, no clock, no badges.
 
+### Refit: 8.7" 1340×800 target (amended 2026-07-19)
+
+The deployed tablet is an 8.7" 1340×800 panel running fullscreen with the HA header
+visible (~744px usable height). The original 10" tokens overflowed — bottom tile row
+off screen. Same 3×3 layout, shrunken tokens:
+
+| Token | 10" original | 8.7" refit |
+|---|---|---|
+| Card padding | 22px | 14px |
+| Icon size | 58px | 40px |
+| Primary / secondary font | 26 / 16px | 20 / 13px |
+| Corner radius | 28px | 22px |
+| Grid gap / view padding | 18px | 12px |
+| Rows-column label icon / fonts | 40px, 20/13px | 32px, 16/12px |
+
+Overflow hardening: grid rows are `repeat(3, minmax(0, 1fr))` and the grid gets an
+explicit `height: calc(100vh - var(--header-height, 56px))`, so rows share the viewport
+instead of growing to content — the layout cannot overflow again regardless of chrome.
+
 ### Card stack (all already installed via HACS)
 
 - **lovelace-mushroom** — zone tiles (mushroom-light-card, mushroom-entity-card)
