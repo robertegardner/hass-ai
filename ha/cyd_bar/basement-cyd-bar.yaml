@@ -78,6 +78,8 @@ touchscreen:
     interrupt_pin: GPIO36
     update_interval: 50ms
     threshold: 400
+    transform:
+      mirror_x: true
     calibration:
       x_min: 280
       x_max: 3860
