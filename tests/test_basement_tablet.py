@@ -6,6 +6,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT / "ha" / "basement_tablet"))
 
+import build_dashboard  # noqa: E402
 import entities  # noqa: E402
 import helpers  # noqa: E402
 
@@ -68,3 +69,45 @@ def test_sync_automation_debounces_and_covers_all_rows():
     assert set_value["service"] == "input_number.set_value"
     assert set_value["target"]["entity_id"] == entities.INPUT_NUMBER
     assert set_value["data"]["value"] == entities.value_jinja()
+
+
+def _cards():
+    cfg = build_dashboard.build()
+    assert len(cfg["views"]) == 1
+    return cfg["views"][0]["cards"]
+
+
+def test_dashboard_has_all_zone_tiles_and_grid_areas():
+    cards = _cards()
+    by_area = {c["view_layout"]["grid-area"]: c for c in cards}
+    assert set(by_area) == {"cans", "bar", "mancave", "foyer", "bath", "alloff", "rows"}
+    for zone, area in [("cans", "cans"), ("bar", "bar"), ("mancave", "mancave"),
+                       ("foyer", "foyer")]:
+        card = by_area[area]
+        assert card["type"] == "custom:mushroom-light-card"
+        assert card["entity"] == entities.ZONES[zone]
+        assert card["show_brightness_control"] is True
+        assert card["tap_action"] == {"action": "toggle"}
+    bath = by_area["bath"]
+    assert bath["type"] == "custom:mushroom-entity-card"
+    assert bath["entity"] == entities.ZONES["bathroom"]
+    assert bath["tap_action"] == {"action": "toggle"}
+
+
+def test_all_off_targets_every_zone_and_row():
+    cards = _cards()
+    alloff = next(c for c in cards if c["view_layout"]["grid-area"] == "alloff")
+    tap = alloff["tap_action"]
+    assert tap["action"] == "call-service"
+    assert tap["service"] == "homeassistant.turn_off"
+    assert sorted(tap["target"]["entity_id"]) == sorted(entities.ALL_OFF_TARGETS)
+
+
+def test_rows_slider_bound_to_input_number():
+    cards = _cards()
+    col = next(c for c in cards if c["view_layout"]["grid-area"] == "rows")
+    slider = col["cards"][-1]
+    assert slider["type"] == "custom:my-slider-v2"
+    assert slider["entity"] == entities.INPUT_NUMBER
+    assert slider["vertical"] is True
+    assert slider["flipped"] is True

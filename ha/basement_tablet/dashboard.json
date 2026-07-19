@@ -1,0 +1,267 @@
+{
+ "title": "Basement",
+ "views": [
+  {
+   "title": "Basement",
+   "path": "main",
+   "type": "custom:grid-layout",
+   "background": "radial-gradient(ellipse 130% 90% at 50% -20%, #1b1e24 0%, #101216 55%, #0a0b0e 100%) fixed",
+   "badges": [],
+   "layout": {
+    "grid-template-columns": "1fr 1fr minmax(240px, 22%)",
+    "grid-template-rows": "1fr 1fr 1fr",
+    "grid-template-areas": "\"cans bar rows\" \"mancave foyer rows\" \"bath alloff rows\"",
+    "grid-gap": "18px",
+    "padding": "18px",
+    "height": "100%",
+    "mediaquery": {
+     "(orientation: portrait)": {
+      "grid-template-columns": "1fr",
+      "grid-template-rows": "repeat(6, 140px) 1fr",
+      "grid-template-areas": "\"cans\" \"bar\" \"mancave\" \"foyer\" \"bath\" \"alloff\" \"rows\""
+     }
+    }
+   },
+   "cards": [
+    {
+     "type": "custom:mushroom-light-card",
+     "entity": "light.basement_cans",
+     "name": "Basement Cans",
+     "icon": "mdi:spotlight-beam",
+     "layout": "vertical",
+     "fill_container": true,
+     "show_brightness_control": true,
+     "use_light_color": false,
+     "collapsible_controls": false,
+     "tap_action": {
+      "action": "toggle"
+     },
+     "hold_action": {
+      "action": "none"
+     },
+     "double_tap_action": {
+      "action": "none"
+     },
+     "view_layout": {
+      "grid-area": "cans"
+     },
+     "card_mod": {
+      "style": "\nha-card {\n  height: 100%;\n  box-sizing: border-box;\n  border-radius: 28px;\n  background: rgba(255,255,255,0.045);\n  border: 1px solid rgba(255,255,255,0.07);\n  padding: 22px;\n  --icon-size: 58px;\n  --card-primary-font-size: 26px;\n  --card-primary-font-weight: 600;\n  --card-secondary-font-size: 16px;\n  --primary-text-color: #f2f0ec;\n  --secondary-text-color: rgba(242,240,236,0.55);\n  --rgb-state-light: 255, 179, 84;\n  --rgb-state-switch: 255, 179, 84;\n  --rgb-disabled: 120, 120, 120;\n}\n"
+     }
+    },
+    {
+     "type": "custom:mushroom-light-card",
+     "entity": "light.bar_lights",
+     "name": "Bar Lights",
+     "icon": "mdi:glass-cocktail",
+     "layout": "vertical",
+     "fill_container": true,
+     "show_brightness_control": true,
+     "use_light_color": false,
+     "collapsible_controls": false,
+     "tap_action": {
+      "action": "toggle"
+     },
+     "hold_action": {
+      "action": "none"
+     },
+     "double_tap_action": {
+      "action": "none"
+     },
+     "view_layout": {
+      "grid-area": "bar"
+     },
+     "card_mod": {
+      "style": "\nha-card {\n  height: 100%;\n  box-sizing: border-box;\n  border-radius: 28px;\n  background: rgba(255,255,255,0.045);\n  border: 1px solid rgba(255,255,255,0.07);\n  padding: 22px;\n  --icon-size: 58px;\n  --card-primary-font-size: 26px;\n  --card-primary-font-weight: 600;\n  --card-secondary-font-size: 16px;\n  --primary-text-color: #f2f0ec;\n  --secondary-text-color: rgba(242,240,236,0.55);\n  --rgb-state-light: 255, 179, 84;\n  --rgb-state-switch: 255, 179, 84;\n  --rgb-disabled: 120, 120, 120;\n}\n"
+     }
+    },
+    {
+     "type": "custom:mushroom-light-card",
+     "entity": "light.mancave",
+     "name": "ManCave",
+     "icon": "mdi:sofa",
+     "layout": "vertical",
+     "fill_container": true,
+     "show_brightness_control": true,
+     "use_light_color": false,
+     "collapsible_controls": false,
+     "tap_action": {
+      "action": "toggle"
+     },
+     "hold_action": {
+      "action": "none"
+     },
+     "double_tap_action": {
+      "action": "none"
+     },
+     "view_layout": {
+      "grid-area": "mancave"
+     },
+     "card_mod": {
+      "style": "\nha-card {\n  height: 100%;\n  box-sizing: border-box;\n  border-radius: 28px;\n  background: rgba(255,255,255,0.045);\n  border: 1px solid rgba(255,255,255,0.07);\n  padding: 22px;\n  --icon-size: 58px;\n  --card-primary-font-size: 26px;\n  --card-primary-font-weight: 600;\n  --card-secondary-font-size: 16px;\n  --primary-text-color: #f2f0ec;\n  --secondary-text-color: rgba(242,240,236,0.55);\n  --rgb-state-light: 255, 179, 84;\n  --rgb-state-switch: 255, 179, 84;\n  --rgb-disabled: 120, 120, 120;\n}\n"
+     }
+    },
+    {
+     "type": "custom:mushroom-light-card",
+     "entity": "light.basement_foyer",
+     "name": "Foyer",
+     "icon": "mdi:coach-lamp",
+     "layout": "vertical",
+     "fill_container": true,
+     "show_brightness_control": true,
+     "use_light_color": false,
+     "collapsible_controls": false,
+     "tap_action": {
+      "action": "toggle"
+     },
+     "hold_action": {
+      "action": "none"
+     },
+     "double_tap_action": {
+      "action": "none"
+     },
+     "view_layout": {
+      "grid-area": "foyer"
+     },
+     "card_mod": {
+      "style": "\nha-card {\n  height: 100%;\n  box-sizing: border-box;\n  border-radius: 28px;\n  background: rgba(255,255,255,0.045);\n  border: 1px solid rgba(255,255,255,0.07);\n  padding: 22px;\n  --icon-size: 58px;\n  --card-primary-font-size: 26px;\n  --card-primary-font-weight: 600;\n  --card-secondary-font-size: 16px;\n  --primary-text-color: #f2f0ec;\n  --secondary-text-color: rgba(242,240,236,0.55);\n  --rgb-state-light: 255, 179, 84;\n  --rgb-state-switch: 255, 179, 84;\n  --rgb-disabled: 120, 120, 120;\n}\n"
+     }
+    },
+    {
+     "type": "custom:mushroom-entity-card",
+     "entity": "switch.basement_bathroom_lights",
+     "name": "Bathroom",
+     "icon": "mdi:shower",
+     "layout": "vertical",
+     "fill_container": true,
+     "tap_action": {
+      "action": "toggle"
+     },
+     "hold_action": {
+      "action": "none"
+     },
+     "double_tap_action": {
+      "action": "none"
+     },
+     "view_layout": {
+      "grid-area": "bath"
+     },
+     "card_mod": {
+      "style": "\nha-card {\n  height: 100%;\n  box-sizing: border-box;\n  border-radius: 28px;\n  background: rgba(255,255,255,0.045);\n  border: 1px solid rgba(255,255,255,0.07);\n  padding: 22px;\n  --icon-size: 58px;\n  --card-primary-font-size: 26px;\n  --card-primary-font-weight: 600;\n  --card-secondary-font-size: 16px;\n  --primary-text-color: #f2f0ec;\n  --secondary-text-color: rgba(242,240,236,0.55);\n  --rgb-state-light: 255, 179, 84;\n  --rgb-state-switch: 255, 179, 84;\n  --rgb-disabled: 120, 120, 120;\n}\n"
+     }
+    },
+    {
+     "type": "custom:mushroom-template-card",
+     "primary": "All Off",
+     "secondary": "everything downstairs",
+     "icon": "mdi:power",
+     "icon_color": "red",
+     "layout": "vertical",
+     "fill_container": true,
+     "tap_action": {
+      "action": "call-service",
+      "service": "homeassistant.turn_off",
+      "target": {
+       "entity_id": [
+        "light.basement_cans",
+        "light.bar_lights",
+        "light.mancave",
+        "light.basement_foyer",
+        "switch.basement_bathroom_lights",
+        "light.0xc890a81f69ed0000",
+        "light.0xc890a81f577b0000",
+        "light.right_row_1_front",
+        "light.0xc890a81eb5df0000",
+        "light.0xc890a81f6ff30000",
+        "light.right_row_2_3",
+        "light.left_row_3_3",
+        "light.right_row_3_3",
+        "light.left_rear_row_3",
+        "light.0xc890a81f5a530000",
+        "light.0xc890a81ed77e0000"
+       ]
+      }
+     },
+     "hold_action": {
+      "action": "none"
+     },
+     "double_tap_action": {
+      "action": "none"
+     },
+     "view_layout": {
+      "grid-area": "alloff"
+     },
+     "card_mod": {
+      "style": "\nha-card {\n  height: 100%;\n  box-sizing: border-box;\n  border-radius: 28px;\n  background: rgba(255,255,255,0.045);\n  border: 1px solid rgba(255,255,255,0.07);\n  padding: 22px;\n  --icon-size: 58px;\n  --card-primary-font-size: 26px;\n  --card-primary-font-weight: 600;\n  --card-secondary-font-size: 16px;\n  --primary-text-color: #f2f0ec;\n  --secondary-text-color: rgba(242,240,236,0.55);\n  --rgb-state-light: 255, 179, 84;\n  --rgb-state-switch: 255, 179, 84;\n  --rgb-disabled: 120, 120, 120;\n}\n"
+     }
+    },
+    {
+     "type": "vertical-stack",
+     "view_layout": {
+      "grid-area": "rows"
+     },
+     "cards": [
+      {
+       "type": "custom:mushroom-template-card",
+       "primary": "Cans by Row",
+       "secondary": "slide down \u00b7 front rows off first",
+       "icon": "mdi:spotlight-beam",
+       "tap_action": {
+        "action": "none"
+       },
+       "card_mod": {
+        "style": "\nha-card {\n  background: none;\n  border: none;\n  box-shadow: none;\n  --card-primary-font-size: 20px;\n  --card-secondary-font-size: 13px;\n  --primary-text-color: #f2f0ec;\n  --secondary-text-color: rgba(242,240,236,0.55);\n  --icon-size: 40px;\n}\n"
+       }
+      },
+      {
+       "type": "custom:my-slider-v2",
+       "entity": "input_number.basement_cans_rows",
+       "vertical": true,
+       "flipped": true,
+       "step": 1,
+       "styles": {
+        "card": [
+         {
+          "height": "calc(100vh - 200px)"
+         },
+         {
+          "width": "100%"
+         },
+         {
+          "border-radius": "28px"
+         },
+         {
+          "background": "rgba(255,255,255,0.045)"
+         },
+         {
+          "border": "1px solid rgba(255,255,255,0.07)"
+         }
+        ],
+        "container": [
+         {
+          "border-radius": "28px"
+         }
+        ],
+        "track": [
+         {
+          "background": "rgba(255,255,255,0.06)"
+         }
+        ],
+        "progress": [
+         {
+          "background": "linear-gradient(180deg, rgba(255, 179, 84, 0.95) 0%, rgba(255, 179, 84, 0.40) 100%)"
+         }
+        ],
+        "thumb": [
+         {
+          "background": "#f2f0ec"
+         }
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}
