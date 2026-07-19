@@ -192,9 +192,10 @@ FOYER_GROUP_FLOW = {
     "menu": "light",
     "steps": {
         "light": {
-            "title": FOYER_GROUP_TITLE,
+            "name": FOYER_GROUP_TITLE,
             "entities": FOYER_MEMBERS,
             "hide_members": False,
+            "all": False,  # group is on if any member is on
         }
     },
 }
