@@ -30,6 +30,10 @@ Every non-dry-run step writes to HA — operator confirmation required
 
 ## Facts that shaped the design
 
+- Game Room = `light.game_room_ceiling`, a group over the two Govee ceilings
+  (`light.game_ceiling_front/rear`). Replaced the ManCave ISY dimmer zone
+  (`light.mancave`) on 2026-07-19 — that light is no longer on the panel or in
+  All Off.
 - Foyer = `light.basement_foyer`, a group over `light.bathroom_foyer_a/b`. Those
   Hue lights are `unavailable` until the old ISY load switch is replaced; the
   tile renders greyed until then and needs no change after.

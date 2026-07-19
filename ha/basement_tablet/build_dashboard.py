@@ -166,7 +166,7 @@ def build() -> dict:
     cards = [
         light_tile(ZONES["cans"], "Basement Cans", "mdi:spotlight-beam", "cans"),
         light_tile(ZONES["bar"], "Bar Lights", "mdi:glass-cocktail", "bar"),
-        light_tile(ZONES["mancave"], "ManCave", "mdi:sofa", "mancave"),
+        light_tile(ZONES["gameroom"], "Game Room", "mdi:gamepad-variant", "game"),
         light_tile(ZONES["foyer"], "Foyer", "mdi:coach-lamp", "foyer"),
         switch_tile(ZONES["bathroom"], "Bathroom", "mdi:shower", "bath"),
         all_off_tile("alloff"),
@@ -182,7 +182,7 @@ def build() -> dict:
             "grid-template-columns": "1fr 1fr minmax(240px, 22%)",
             "grid-template-rows": "1fr 1fr 1fr",
             "grid-template-areas": (
-                '"cans bar rows" "mancave foyer rows" "bath alloff rows"'
+                '"cans bar rows" "game foyer rows" "bath alloff rows"'
             ),
             "grid-gap": "18px",
             "padding": "18px",
@@ -193,7 +193,7 @@ def build() -> dict:
                     "grid-template-columns": "1fr",
                     "grid-template-rows": "repeat(6, 140px) 1fr",
                     "grid-template-areas": (
-                        '"cans" "bar" "mancave" "foyer" "bath" "alloff" "rows"'
+                        '"cans" "bar" "game" "foyer" "bath" "alloff" "rows"'
                     ),
                 }
             },

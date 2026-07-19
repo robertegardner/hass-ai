@@ -80,8 +80,8 @@ def _cards():
 def test_dashboard_has_all_zone_tiles_and_grid_areas():
     cards = _cards()
     by_area = {c["view_layout"]["grid-area"]: c for c in cards}
-    assert set(by_area) == {"cans", "bar", "mancave", "foyer", "bath", "alloff", "rows"}
-    for zone, area in [("cans", "cans"), ("bar", "bar"), ("mancave", "mancave"),
+    assert set(by_area) == {"cans", "bar", "game", "foyer", "bath", "alloff", "rows"}
+    for zone, area in [("cans", "cans"), ("bar", "bar"), ("gameroom", "game"),
                        ("foyer", "foyer")]:
         card = by_area[area]
         assert card["type"] == "custom:mushroom-light-card"

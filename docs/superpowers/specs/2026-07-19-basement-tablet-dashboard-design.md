@@ -61,7 +61,7 @@ styled identically (toggle only).
 |---|---|---|
 | Basement Cans | `light.basement_cans` | yes |
 | Bar Lights | `light.bar_lights` | yes |
-| ManCave | `light.mancave` | yes |
+| Game Room | `light.game_room_ceiling` (**new** light group = `light.game_ceiling_front` + `light.game_ceiling_rear`; 2026-07-19 operator change, was ManCave / `light.mancave`) | yes |
 | Foyer | `light.basement_foyer` (**new** light group = `light.bathroom_foyer_a` + `light.bathroom_foyer_b`) | yes |
 | Bathroom | `switch.basement_bathroom_lights` | toggle only |
 

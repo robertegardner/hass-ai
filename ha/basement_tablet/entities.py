@@ -11,12 +11,13 @@ INPUT_NUMBER = "input_number.basement_cans_rows"
 ZONES = {
     "cans": "light.basement_cans",
     "bar": "light.bar_lights",
-    "mancave": "light.mancave",
+    "gameroom": "light.game_room_ceiling",  # group created by helpers.py
     "foyer": "light.basement_foyer",  # group created by helpers.py
     "bathroom": "switch.basement_bathroom_lights",
 }
 
 FOYER_MEMBERS = ["light.bathroom_foyer_a", "light.bathroom_foyer_b"]
+GAME_CEILING_MEMBERS = ["light.game_ceiling_front", "light.game_ceiling_rear"]
 
 # Can rows front (1) -> rear (4). Sliding the tablet slider down turns rows off
 # front to back, so the rear of the room stays lit longest.

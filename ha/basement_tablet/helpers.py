@@ -3,6 +3,7 @@
 Creates (idempotent):
   - input_number.basement_cans_rows  (0-4 slider; WS storage collection)
   - light.basement_foyer             (light-group config flow over the Hue foyer pair)
+  - light.game_room_ceiling          (light-group over the two Govee game ceilings)
   - automation basement_cans_rows_apply  (slider -> rows, front row dies first)
   - automation basement_cans_rows_sync   (rows -> slider, 1 s debounce, mode restart)
 
@@ -26,13 +27,25 @@ import os
 import sys
 import urllib.request
 
-from entities import ALL_ROW_LIGHTS, FOYER_MEMBERS, INPUT_NUMBER, ROWS, value_jinja
+from entities import (
+    ALL_ROW_LIGHTS,
+    FOYER_MEMBERS,
+    GAME_CEILING_MEMBERS,
+    INPUT_NUMBER,
+    ROWS,
+    value_jinja,
+)
 
 HA_URL = os.environ.get("HA_URL", "http://homeassistant.iot:8123")
 HA_WS = os.environ.get("HA_WS_URL", "ws://homeassistant.iot:8123/api/websocket")
 
 INPUT_NUMBER_NAME = "Basement cans rows"  # slugs to basement_cans_rows
-FOYER_GROUP_TITLE = "Basement Foyer"      # slugs to light.basement_foyer
+
+# title -> members; titles slug to light.basement_foyer / light.game_room_ceiling
+LIGHT_GROUPS = {
+    "Basement Foyer": FOYER_MEMBERS,
+    "Game Room Ceiling": GAME_CEILING_MEMBERS,
+}
 
 
 def apply_automation() -> dict:
@@ -187,26 +200,29 @@ def drive_flow(helper: dict, dry_run: bool) -> str:
                 pass  # flow already finished or expired
 
 
-FOYER_GROUP_FLOW = {
-    "handler": "group",
-    "menu": "light",
-    "steps": {
-        "light": {
-            "name": FOYER_GROUP_TITLE,
-            "entities": FOYER_MEMBERS,
-            "hide_members": False,
-            "all": False,  # group is on if any member is on
-        }
-    },
-}
+def group_flow(title: str, members: list[str]) -> dict:
+    return {
+        "handler": "group",
+        "menu": "light",
+        "steps": {
+            "light": {
+                "name": title,
+                "entities": members,
+                "hide_members": False,
+                "all": False,  # group is on if any member is on
+            }
+        },
+    }
 
 
-def ensure_foyer_group(dry_run: bool) -> None:
-    if FOYER_GROUP_TITLE in existing_titles():
-        print(f"skip (exists): light group '{FOYER_GROUP_TITLE}'")
-        return
-    print(f"{'dry-run' if dry_run else 'create'}: light group '{FOYER_GROUP_TITLE}'")
-    print(f"  -> {drive_flow(FOYER_GROUP_FLOW, dry_run)}")
+def ensure_light_groups(dry_run: bool) -> None:
+    have = existing_titles()
+    for title, members in LIGHT_GROUPS.items():
+        if title in have:
+            print(f"skip (exists): light group '{title}'")
+            continue
+        print(f"{'dry-run' if dry_run else 'create'}: light group '{title}'")
+        print(f"  -> {drive_flow(group_flow(title, members), dry_run)}")
 
 
 def ensure_automations(dry_run: bool) -> None:
@@ -228,7 +244,7 @@ def main() -> None:
         sys.exit("HA_TOKEN not set (source .env first)")
 
     asyncio.run(ensure_input_number(args.dry_run))
-    ensure_foyer_group(args.dry_run)
+    ensure_light_groups(args.dry_run)
     ensure_automations(args.dry_run)
 
 

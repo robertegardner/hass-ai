@@ -10,7 +10,7 @@
    "layout": {
     "grid-template-columns": "1fr 1fr minmax(240px, 22%)",
     "grid-template-rows": "1fr 1fr 1fr",
-    "grid-template-areas": "\"cans bar rows\" \"mancave foyer rows\" \"bath alloff rows\"",
+    "grid-template-areas": "\"cans bar rows\" \"game foyer rows\" \"bath alloff rows\"",
     "grid-gap": "18px",
     "padding": "18px",
     "height": "100%",
@@ -18,7 +18,7 @@
      "(orientation: portrait)": {
       "grid-template-columns": "1fr",
       "grid-template-rows": "repeat(6, 140px) 1fr",
-      "grid-template-areas": "\"cans\" \"bar\" \"mancave\" \"foyer\" \"bath\" \"alloff\" \"rows\""
+      "grid-template-areas": "\"cans\" \"bar\" \"game\" \"foyer\" \"bath\" \"alloff\" \"rows\""
      }
     }
    },
@@ -77,9 +77,9 @@
     },
     {
      "type": "custom:mushroom-light-card",
-     "entity": "light.mancave",
-     "name": "ManCave",
-     "icon": "mdi:sofa",
+     "entity": "light.game_room_ceiling",
+     "name": "Game Room",
+     "icon": "mdi:gamepad-variant",
      "layout": "vertical",
      "fill_container": true,
      "show_brightness_control": true,
@@ -95,7 +95,7 @@
       "action": "none"
      },
      "view_layout": {
-      "grid-area": "mancave"
+      "grid-area": "game"
      },
      "card_mod": {
       "style": "\nha-card {\n  height: 100%;\n  box-sizing: border-box;\n  border-radius: 28px;\n  background: rgba(255,255,255,0.045);\n  border: 1px solid rgba(255,255,255,0.07);\n  padding: 22px;\n  --icon-size: 58px;\n  --card-primary-font-size: 26px;\n  --card-primary-font-weight: 600;\n  --card-secondary-font-size: 16px;\n  --primary-text-color: #f2f0ec;\n  --secondary-text-color: rgba(242,240,236,0.55);\n  --rgb-state-light: 255, 179, 84;\n  --rgb-state-switch: 255, 179, 84;\n  --rgb-disabled: 120, 120, 120;\n}\n"
@@ -165,7 +165,7 @@
        "entity_id": [
         "light.basement_cans",
         "light.bar_lights",
-        "light.mancave",
+        "light.game_room_ceiling",
         "light.basement_foyer",
         "switch.basement_bathroom_lights",
         "light.0xc890a81f69ed0000",
