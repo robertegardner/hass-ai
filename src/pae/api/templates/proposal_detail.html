@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}{{ proposal.title }}{% endblock %}
+{% block content %}
+<p><a href="/proposals?status={{ proposal.status }}">&larr; back to {{ proposal.status }}</a></p>
+
+<div class="card">
+  <h2>{{ proposal.title }}</h2>
+  <p class="muted">
+    {{ proposal.kind }} &middot; status: {{ proposal.status }}
+    {% if proposal.reject_reason %}&middot; reason: {{ proposal.reject_reason }}{% endif %}
+  </p>
+  <p>{{ proposal.rationale }}</p>
+  <p>
+    Entities:
+    {% for eid in proposal.entity_ids %}
+    <span title="{{ eid }}">{{ proposal.friendly_names.get(eid, eid) }}</span
+      >{{ ", " if not loop.last else "" }}
+    {% endfor %}
+  </p>
+</div>
+
+<div class="card">
+  <h2>Automation</h2>
+  <pre>{{ yaml_text }}</pre>
+</div>
+
+<div class="card">
+  <h2>Shadow performance</h2>
+  <p>
+    14-day precision: {{ "%.0f"|format(precision * 100) if precision is not none else "n/a" }}%
+    &middot; coverage: {{ "%.0f"|format(coverage * 100) if coverage is not none else "n/a" }}%
+    &middot;
+    {% if ready %}
+    <span class="badge ready">ready to graduate</span>
+    {% else %}
+    <span class="badge not-ready">not ready</span>
+    {% endif %}
+  </p>
+  {{ spark|safe }}
+  <table>
+    <thead><tr><th>Day</th><th>Expected</th><th>Matched</th><th>Total</th></tr></thead>
+    <tbody>
+      {% for h in history %}
+      <tr>
+        <td>{{ h.day }}</td>
+        <td>{{ h.expected_fires }}</td>
+        <td>{{ h.human_matches }}</td>
+        <td>{{ h.human_total }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<div class="card">
+  <h2>Source patterns</h2>
+  <ul>
+    {% for key in proposal.source_pattern_keys %}<li>{{ key }}</li>{% endfor %}
+  </ul>
+</div>
+
+{% if proposal.status == "shadowing" %}
+<div class="card">
+  <form class="inline" method="post" action="/proposals/{{ proposal.id }}/approve">
+    <button class="approve" type="submit">Approve</button>
+  </form>
+  <form class="inline" method="post" action="/proposals/{{ proposal.id }}/reject">
+    <input type="text" name="reason" placeholder="reason (optional)">
+    <button class="reject" type="submit">Reject</button>
+  </form>
+</div>
+{% endif %}
+{% endblock %}

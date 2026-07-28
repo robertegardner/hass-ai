@@ -12,6 +12,10 @@ def create_app() -> FastAPI:
 
     Instrumentator().instrument(app).expose(app, endpoint="/metrics")
 
+    from pae.api.proposals import router as proposals_router
+
+    app.include_router(proposals_router)
+
     @app.get("/healthz")
     async def healthz() -> dict:
         return {"status": "ok", "version": __version__}

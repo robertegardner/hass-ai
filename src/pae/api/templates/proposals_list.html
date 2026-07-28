@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Proposals — {{ status }}{% endblock %}
+{% block content %}
+<div class="tabs">
+  {% for s in statuses %}
+  <a href="/proposals?status={{ s }}" class="{{ 'active' if s == status else '' }}">
+    {{ s }} ({{ counts[s] }})
+  </a>
+  {% endfor %}
+</div>
+{% if rows %}
+<table>
+  <thead>
+    <tr>
+      <th>Title</th>
+      <th>Kind</th>
+      <th>Entities</th>
+      <th>14d precision</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for row in rows %}
+    {% set p = row.proposal %}
+    <tr>
+      <td><a href="/proposals/{{ p.id }}">{{ p.title }}</a></td>
+      <td>{{ p.kind }}</td>
+      <td>
+        {% for eid in p.entity_ids %}
+        <span title="{{ eid }}">{{ p.friendly_names.get(eid, eid) }}</span
+          >{{ ", " if not loop.last else "" }}
+        {% endfor %}
+      </td>
+      <td>{{ row.spark|safe }}</td>
+      <td>{% if p.get('ready') %}<span class="badge ready">ready</span>{% endif %}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="muted">No proposals with status &ldquo;{{ status }}&rdquo;.</p>
+{% endif %}
+{% endblock %}
