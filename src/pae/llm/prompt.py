@@ -6,8 +6,13 @@ everything the model returns is re-validated by pae.proposer.schema before
 storage, so this prompt is about giving good evidence, not enforcing rules."""
 from dataclasses import dataclass
 
+from pae.proposer.schema import Automation
+
 PROMPT_VERSION = 1
 
+# Full pydantic-derived shape so Ollama's constrained decoding enforces
+# list-typed trigger/condition/action and entity_id — the live 2026-07-28 run
+# showed models emit idiomatic HA scalars when automation is a bare "object".
 RESPONSE_SCHEMA: dict = {
     "type": "object",
     "properties": {
@@ -15,7 +20,7 @@ RESPONSE_SCHEMA: dict = {
         "decline_reason": {"type": "string"},
         "title": {"type": "string"},
         "rationale": {"type": "string"},
-        "automation": {"type": "object"},
+        "automation": Automation.model_json_schema(),
     },
     "required": ["propose"],
 }

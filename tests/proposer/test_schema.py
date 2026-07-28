@@ -153,3 +153,38 @@ def test_time_condition_entity_reference_rejected():
     )
     parsed, errors = check(bad, tod_group())
     assert parsed is None
+
+
+def test_scalar_shapes_coerced_to_lists():
+    # models emit idiomatic HA shapes: single trigger object, scalar entity_id,
+    # single condition object — accept and normalize them (live 2026-07-28 finding)
+    auto = {
+        "trigger": {"platform": "time", "at": "07:12:00"},
+        "condition": {"condition": "time", "weekday": ["mon", "tue", "wed", "thu", "fri"]},
+        "action": [{"service": "switch.turn_on", "target": {"entity_id": "switch.a"}}],
+    }
+    parsed, errors = check(auto, tod_group())
+    assert errors == []
+    assert parsed.trigger[0].at == "07:12:00"
+    assert parsed.action[0].target.entity_id == ["switch.a"]
+    assert parsed.condition[0].weekday == ["mon", "tue", "wed", "thu", "fri"]
+
+
+def test_single_action_object_coerced():
+    auto = dict(
+        GOOD_TOD,
+        action={"service": "switch.turn_on", "target": {"entity_id": ["switch.a"]}},
+    )
+    parsed, errors = check(auto, tod_group())
+    assert errors == []
+    assert len(parsed.action) == 1
+
+
+def test_response_schema_constrains_automation_shape():
+    from pae.llm.prompt import RESPONSE_SCHEMA
+
+    auto_schema = RESPONSE_SCHEMA["properties"]["automation"]
+    # full pydantic-derived schema, not a bare {"type": "object"} — Ollama's
+    # constrained decoding needs the real shape to enforce lists
+    assert "properties" in auto_schema
+    assert set(auto_schema["properties"]) >= {"trigger", "condition", "action"}

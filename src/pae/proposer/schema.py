@@ -6,7 +6,14 @@ checks below. A validation failure never stores anything."""
 from datetime import UTC, datetime
 from typing import Annotated, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator
+from pydantic import (
+    BaseModel,
+    BeforeValidator,
+    ConfigDict,
+    Field,
+    ValidationError,
+    field_validator,
+)
 
 from pae.miner.stats import circular_diff
 
@@ -113,8 +120,17 @@ Condition = Annotated[
 ]
 
 
+def _listify(v):
+    """LLMs emit idiomatic HA shapes (scalar entity_id, single trigger object);
+    accept and normalize instead of failing the whole proposal on shape alone."""
+    return [v] if not isinstance(v, list) else v
+
+
+_Listified = BeforeValidator(_listify)
+
+
 class Target(_Strict):
-    entity_id: list[str] = Field(min_length=1)
+    entity_id: Annotated[list[str], _Listified] = Field(min_length=1)
 
 
 class ServiceAction(_Strict):
@@ -123,9 +139,9 @@ class ServiceAction(_Strict):
 
 
 class Automation(_Strict):
-    trigger: list[Trigger] = Field(min_length=1, max_length=1)
-    condition: list[Condition] = Field(default_factory=list)
-    action: list[ServiceAction] = Field(min_length=1)
+    trigger: Annotated[list[Trigger], _Listified] = Field(min_length=1, max_length=1)
+    condition: Annotated[list[Condition], _Listified] = Field(default_factory=list)
+    action: Annotated[list[ServiceAction], _Listified] = Field(min_length=1)
 
 
 def validate_proposal(
