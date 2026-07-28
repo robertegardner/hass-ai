@@ -17,6 +17,7 @@ def main(argv: list[str] | None = None) -> int:
     sub.add_parser("ingest", help="run the HA event ingester")
     sub.add_parser("migrate", help="upgrade the database schema to head")
     sub.add_parser("mine", help="run the pattern miner once, now")
+    sub.add_parser("propose", help="generate proposals once, now")
     patterns = sub.add_parser("patterns", help="inspect mined patterns")
     psub = patterns.add_subparsers(dest="patterns_command", required=True)
     plist = psub.add_parser("list", help="list mined patterns by descending lift")
@@ -45,6 +46,18 @@ def main(argv: list[str] | None = None) -> int:
         print(
             f"events={result.events_loaded} days={result.days_observed} "
             f"tod={result.tod_patterns} pairs={result.pair_patterns}"
+        )
+        return 0
+
+    if args.command == "propose":
+        configure_logging(settings.log_level, "console")
+        from pae.proposer.service import run_proposing
+
+        result = run_proposing()
+        print(
+            f"groups={result.groups_considered} generated={result.generated} "
+            f"declined={result.declined} validation_failed={result.validation_failed} "
+            f"skipped={result.skipped_existing} stale={result.stale_marked}"
         )
         return 0
 

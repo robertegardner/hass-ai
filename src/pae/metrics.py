@@ -40,3 +40,14 @@ MINER_LAST_SUCCESS = Gauge(
 MINER_PATTERNS = Gauge(
     "pae_miner_patterns", "Patterns currently in the patterns table", ["kind"]
 )
+
+LLM_REQUESTS = Counter("pae_llm_requests_total", "LLM chat requests", ["model", "status"])
+LLM_SECONDS = Gauge("pae_llm_last_duration_seconds", "Duration of the last LLM request")
+PROPOSALS_BY_STATUS = Gauge("pae_proposals", "Proposals by status", ["status"])
+PROPOSER_VALIDATION_FAILURES = Counter(
+    "pae_proposer_validation_failures_total",
+    "LLM outputs rejected by schema/registry validation (after one retry)",
+)
+SHADOW_DAYS_SCORED = Counter(
+    "pae_shadow_days_scored_total", "Proposal-days scored by the shadow evaluator"
+)
