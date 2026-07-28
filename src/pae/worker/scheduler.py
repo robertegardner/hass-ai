@@ -34,9 +34,17 @@ def enqueue_nightly_chain(queue: Queue, now: datetime) -> None:
     from pae.proposer.job import propose_job
     from pae.shadow.job import shadow_eval_job
 
-    mine = queue.enqueue(mine_patterns_job, job_id=f"mine-{now:%Y%m%d}")
-    propose = queue.enqueue(propose_job, job_id=f"propose-{now:%Y%m%d}", depends_on=mine)
-    shadow = queue.enqueue(shadow_eval_job, job_id=f"shadow-{now:%Y%m%d}", depends_on=propose)
+    # Explicit job_timeout on every link: rq's Queue.DEFAULT_TIMEOUT is 180s,
+    # and run_proposing can legitimately run past that (multiple LLM calls at
+    # up to 120s each). Without these, rq would kill the job mid-transaction
+    # and the dependent shadow job would never run.
+    mine = queue.enqueue(mine_patterns_job, job_id=f"mine-{now:%Y%m%d}", job_timeout=900)
+    propose = queue.enqueue(
+        propose_job, job_id=f"propose-{now:%Y%m%d}", depends_on=mine, job_timeout=3600
+    )
+    shadow = queue.enqueue(
+        shadow_eval_job, job_id=f"shadow-{now:%Y%m%d}", depends_on=propose, job_timeout=900
+    )
     log.info("nightly_chain_enqueued", mine=mine.id, propose=propose.id, shadow=shadow.id)
 
 

@@ -1,6 +1,6 @@
 from datetime import date
 
-from pae.proposer.repo import _ready_fetch_limit, ready
+from pae.proposer.repo import _SET_STATUS_FROM_STATUSES, _ready_fetch_limit, ready
 
 
 def test_ready_fetch_limit_covers_configured_min_days():
@@ -33,3 +33,17 @@ def test_ready_false_with_only_14_rows_when_min_days_is_20():
     ]
     assert len(history) == 14
     assert ready(history, min_days=20, min_precision=0.8, min_coverage=0.8) is False
+
+
+def test_set_status_from_guard_excludes_terminal_statuses():
+    # set_status's UPDATE ... WHERE status IN (...) guard: approve/reject are
+    # only legal from "shadowing" or "stale" — a row already "approved" or
+    # "rejected" must not be flippable through this endpoint (in particular,
+    # approved -> rejected is not a legal transition in Phase 3). This is the
+    # one piece of that guard with a pure seam to unit-test directly; the
+    # rest (rowcount==0 -> False, no pattern flip on a miss) is a real-DB
+    # integration path with no test DB fixture in this repo, per the existing
+    # house pattern for pae.proposer.repo / pae.shadow.service.
+    assert _SET_STATUS_FROM_STATUSES == ("shadowing", "stale")
+    assert "approved" not in _SET_STATUS_FROM_STATUSES
+    assert "rejected" not in _SET_STATUS_FROM_STATUSES

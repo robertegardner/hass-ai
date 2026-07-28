@@ -181,12 +181,28 @@ def shadow_history(proposal_id: int, days: int = 30) -> list[dict]:
         return list(reversed(history))
 
 
+# The only spec-legal "from" statuses for approve/reject via this endpoint:
+# a proposal is actionable while it's under evaluation (shadowing) or after
+# it fell out of eligibility while still pending review (stale). "approved"
+# and "rejected" are terminal for this call — in particular
+# approved -> rejected is NOT a legal transition here in Phase 3.
+_SET_STATUS_FROM_STATUSES = ("shadowing", "stale")
+
+
 def set_status(proposal_id: int, status: str, reason: str | None = None) -> bool:
+    """Flip a proposal's status, guarded by its current status so only
+    spec-legal transitions apply (see ``_SET_STATUS_FROM_STATUSES``). When
+    the guard misses — the row is missing, or already approved/rejected —
+    this returns False and leaves source patterns untouched, matching the
+    "no status flip happened" outcome."""
     engine = get_engine()
     with engine.begin() as conn:
         result = conn.execute(
             sa.update(Proposal)
-            .where(Proposal.id == proposal_id)
+            .where(
+                Proposal.id == proposal_id,
+                Proposal.status.in_(_SET_STATUS_FROM_STATUSES),
+            )
             .values(status=status, reject_reason=reason, updated_at=sa.func.now())
         )
         if result.rowcount == 0:

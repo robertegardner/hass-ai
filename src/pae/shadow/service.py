@@ -221,6 +221,31 @@ def _adjacent_events(
     return prev_tail + next_head
 
 
+def _event_window(
+    earliest_day: date, today: date, tz: ZoneInfo, tolerance_minutes: float
+) -> tuple[datetime, datetime]:
+    """The UTC ``[start, end)`` range to fetch events over.
+
+    The naive range is local midnight of ``earliest_day`` through local
+    midnight of ``today`` (i.e. through the end of ``yesterday``). That
+    leaves two gaps once ``_adjacent_events`` is in play: the globally
+    earliest scored day has no fetched prev-day tail (nothing before
+    ``earliest_day`` was ever queried), and ``yesterday``'s day+1 head
+    events — today, 00:00 through ``tolerance_minutes`` — are never fetched
+    either, since the range is exclusive of ``today``. Both are widened away
+    here by ``tolerance_minutes`` on each end; the local-date bucketing in
+    ``run_shadow_eval`` naturally sorts the extra rows into
+    ``earliest_day - 1`` and ``today`` respectively, which is exactly what
+    ``_adjacent_events`` looks up for the first and last scored days. The
+    scored days themselves stay ``earliest_day``..``yesterday`` — this only
+    widens what gets fetched, not what gets scored.
+    """
+    tolerance = timedelta(minutes=tolerance_minutes)
+    start = datetime.combine(earliest_day, time.min, tzinfo=tz).astimezone(UTC) - tolerance
+    end = datetime.combine(today, time.min, tzinfo=tz).astimezone(UTC) + tolerance
+    return start, end
+
+
 def run_shadow_eval(now: datetime | None = None) -> dict:
     settings = get_settings()
     now = now or datetime.now(UTC)
@@ -276,8 +301,9 @@ def run_shadow_eval(now: datetime | None = None) -> dict:
 
             days_scored = 0
             if earliest_day is not None and all_entities:
-                range_start = datetime.combine(earliest_day, time.min, tzinfo=tz).astimezone(UTC)
-                range_end = datetime.combine(today_local, time.min, tzinfo=tz).astimezone(UTC)
+                range_start, range_end = _event_window(
+                    earliest_day, today_local, tz, settings.shadow_tolerance_minutes
+                )
                 event_rows = conn.execute(
                     sa.select(Event.time, Event.entity_id, Event.new_state, Event.triggered_by)
                     .where(

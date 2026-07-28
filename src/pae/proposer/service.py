@@ -256,9 +256,16 @@ def run_proposing(now: datetime | None = None, llm=None) -> ProposeResult:
 
             stale_keys = [g.group_key for g in groups if existing.get(g.group_key) == "stale"]
             if stale_keys:
+                # Guard on status == "stale" at UPDATE time, not just at the
+                # `existing` read above: this transaction can be long-running
+                # (LLM calls), and if an operator rejects one of these
+                # proposals via the UI in the meantime and commits, `existing`
+                # is now stale data — without the re-check here this revive
+                # would blindly flip a freshly-rejected proposal back to
+                # "shadowing", silently undoing the operator's rejection.
                 conn.execute(
                     sa.update(Proposal)
-                    .where(Proposal.group_key.in_(stale_keys))
+                    .where(Proposal.group_key.in_(stale_keys), Proposal.status == "stale")
                     .values(status="shadowing", last_eligible_at=now, updated_at=now)
                 )
 

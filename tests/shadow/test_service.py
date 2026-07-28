@@ -1,8 +1,8 @@
-from datetime import UTC, date, datetime, timedelta
+from datetime import UTC, date, datetime, time, timedelta
 from zoneinfo import ZoneInfo
 
 from pae.miner.sun import SunCalculator
-from pae.shadow.service import ShadowEvent, evaluate_day
+from pae.shadow.service import ShadowEvent, _event_window, evaluate_day
 
 TZ = ZoneInfo("America/Chicago")
 SUN = SunCalculator(41.85, -87.65, TZ)
@@ -138,3 +138,28 @@ def test_pair_forward_window_matches_across_midnight():
         adjacent_events=[ev(0, 2, day=next_day)],
     )
     assert (score.expected_fires, score.human_matches) == (1, 1)
+
+
+def test_event_window_widens_past_both_midnights():
+    earliest_day = date(2026, 7, 20)
+    today = date(2026, 7, 28)
+    start, end = _event_window(earliest_day, today, TZ, tolerance_minutes=45)
+
+    plain_start = datetime.combine(earliest_day, time.min, tzinfo=TZ).astimezone(UTC)
+    plain_end = datetime.combine(today, time.min, tzinfo=TZ).astimezone(UTC)
+
+    # widened backward past the earliest scored day's local midnight, so its
+    # prev-day tail is fetched even though there is no day before it in the
+    # scored range
+    assert start == plain_start - timedelta(minutes=45)
+    # widened forward past yesterday's local midnight (= today's local
+    # midnight), so yesterday's day+1 head events land in the query
+    assert end == plain_end + timedelta(minutes=45)
+
+
+def test_event_window_zero_tolerance_is_a_no_op():
+    earliest_day = date(2026, 7, 20)
+    today = date(2026, 7, 28)
+    start, end = _event_window(earliest_day, today, TZ, tolerance_minutes=0)
+    assert start == datetime.combine(earliest_day, time.min, tzinfo=TZ).astimezone(UTC)
+    assert end == datetime.combine(today, time.min, tzinfo=TZ).astimezone(UTC)

@@ -58,8 +58,8 @@ def test_nightly_chain_enqueues_three_dependent_jobs():
     calls = []
 
     class FakeQueue:
-        def enqueue(self, fn, job_id=None, depends_on=None):
-            calls.append((fn.__name__, job_id, depends_on))
+        def enqueue(self, fn, job_id=None, depends_on=None, job_timeout=None):
+            calls.append((fn.__name__, job_id, depends_on, job_timeout))
             return type("J", (), {"id": job_id})()
 
     enqueue_nightly_chain(FakeQueue(), datetime(2026, 7, 28, 9, 0, tzinfo=UTC))
@@ -68,3 +68,10 @@ def test_nightly_chain_enqueues_three_dependent_jobs():
     assert calls[0][1] == "mine-20260728"
     assert calls[1][2].id == "mine-20260728"      # propose depends on mine
     assert calls[2][2].id == "propose-20260728"   # shadow depends on propose
+    # explicit job_timeout on every enqueue: rq's Queue.DEFAULT_TIMEOUT (180s)
+    # would otherwise kill run_proposing mid-transaction (multiple LLM calls
+    # at up to 120s each can legitimately exceed 180s) and skip the dependent
+    # shadow job.
+    assert calls[0][3] == 900   # mine
+    assert calls[1][3] == 3600  # propose
+    assert calls[2][3] == 900   # shadow
