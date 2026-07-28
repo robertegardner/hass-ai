@@ -135,3 +135,21 @@ def test_pair_trigger_must_match_mined_trigger():
     )
     parsed, errors = check(bad, pair_group())
     assert parsed is None
+
+
+def test_empty_target_entity_list_rejected():
+    bad = dict(
+        GOOD_TOD,
+        action=[{"service": "switch.turn_on", "target": {"entity_id": []}}],
+    )
+    parsed, errors = check(bad, tod_group())
+    assert parsed is None
+
+
+def test_time_condition_entity_reference_rejected():
+    bad = dict(
+        GOOD_TOD,
+        condition=[{"condition": "time", "after": "input_datetime.sneaky"}],
+    )
+    parsed, errors = check(bad, tod_group())
+    assert parsed is None

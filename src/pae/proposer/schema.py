@@ -88,6 +88,13 @@ class TimeCondition(_Strict):
     after: str | None = None
     before: str | None = None
 
+    @field_validator("after", "before")
+    @classmethod
+    def _after_before_are_times(cls, v: str | None) -> str | None:
+        if v is not None:
+            _parse_hms(v)
+        return v
+
 
 class StateCondition(_Strict):
     condition: Literal["state"]
@@ -107,7 +114,7 @@ Condition = Annotated[
 
 
 class Target(_Strict):
-    entity_id: list[str]
+    entity_id: list[str] = Field(min_length=1)
 
 
 class ServiceAction(_Strict):
