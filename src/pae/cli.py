@@ -18,6 +18,7 @@ def main(argv: list[str] | None = None) -> int:
     sub.add_parser("migrate", help="upgrade the database schema to head")
     sub.add_parser("mine", help="run the pattern miner once, now")
     sub.add_parser("propose", help="generate proposals once, now")
+    sub.add_parser("shadow", help="run the shadow evaluator once, now")
     patterns = sub.add_parser("patterns", help="inspect mined patterns")
     psub = patterns.add_subparsers(dest="patterns_command", required=True)
     plist = psub.add_parser("list", help="list mined patterns by descending lift")
@@ -59,6 +60,14 @@ def main(argv: list[str] | None = None) -> int:
             f"declined={result.declined} validation_failed={result.validation_failed} "
             f"skipped={result.skipped_existing} stale={result.stale_marked}"
         )
+        return 0
+
+    if args.command == "shadow":
+        configure_logging(settings.log_level, "console")
+        from pae.shadow.service import run_shadow_eval
+
+        result = run_shadow_eval()
+        print(f"proposals={result['proposals_evaluated']} days={result['days_scored']}")
         return 0
 
     if args.command == "patterns":
