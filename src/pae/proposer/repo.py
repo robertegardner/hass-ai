@@ -18,7 +18,7 @@ log = get_logger(__name__)
 
 @lru_cache
 def get_engine() -> sa.Engine:
-    return sa.create_engine(get_settings().db_url)
+    return sa.create_engine(get_settings().db_url, pool_pre_ping=True)
 
 
 def _proposal_to_dict(row) -> dict:
@@ -72,6 +72,16 @@ def _last_n_shadow_rows(conn, proposal_id: int, n: int) -> list[dict]:
     ]
 
 
+def _ready_fetch_limit(min_days: int) -> int:
+    """How many shadow_results rows to fetch so ``ready()`` can see a full
+    ``min_days`` history: at least 14 (the rolling precision/coverage window)
+    and at least ``min_days`` itself, since ``ready()`` requires
+    ``len(history) >= min_days`` before it will return True. A hardcoded 14
+    here would silently make ``ready`` unreachable whenever
+    ``shadow_ready_days`` is configured above 14."""
+    return max(min_days, 14)
+
+
 def ready(
     history: list[dict],
     *,
@@ -110,13 +120,15 @@ def list_proposals(status: str) -> list[dict]:
         for row in rows:
             d = _proposal_to_dict(row)
             d["friendly_names"] = _friendly_names(conn, row.entity_ids)
+            fetch_limit = _ready_fetch_limit(settings.shadow_ready_days)
             history = list(
-                reversed(_last_n_shadow_rows(conn, row.id, 14))
+                reversed(_last_n_shadow_rows(conn, row.id, fetch_limit))
             )  # ascending for ready()
-            if history:
-                expected = sum(h["expected_fires"] for h in history)
-                matches = sum(h["human_matches"] for h in history)
-                total = sum(h["human_total"] for h in history)
+            window = history[-14:]
+            if window:
+                expected = sum(h["expected_fires"] for h in window)
+                matches = sum(h["human_matches"] for h in window)
+                total = sum(h["human_total"] for h in window)
                 d["precision14"] = (matches / expected) if expected > 0 else None
                 d["coverage14"] = (matches / total) if total > 0 else None
             else:
