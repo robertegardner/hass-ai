@@ -19,7 +19,7 @@ Phases 0–2 accepted; Phase 3 (LLM proposals) not started.
 - `uv run pytest` — tests (live-HA tests excluded by default via `-m 'not live'`)
 - `uv run ruff check src tests scripts` — lint (line length 100)
 - `sudo docker compose up -d --build <svc>` — deploy (user in docker group; sudo needed until re-login)
-- `pae api|worker|ingest|migrate|smoke|mine` — CLI entry points (`src/pae/cli.py`)
+- `pae api|worker|ingest|migrate|smoke|mine|propose|shadow` — CLI entry points (`src/pae/cli.py`)
 - `pae patterns list [--kind time_of_day|event_pair] [--limit N]` — inspect mined patterns
 - Alembic migrations in `src/pae/db/migrations/`; ingester runs `migrate` on start
 - `uv run --group weather python ha/weather/<script>.py` — weather stack tooling
@@ -40,6 +40,14 @@ Phases 0–2 accepted; Phase 3 (LLM proposals) not started.
   and gate promotion on `temporal_consistency`/`tod_std_minutes`, not just support/lift.
 - LLM (Ollama-only, no cloud) never executes directly; structured JSON validated against
   schema + entity registry before anything touches HA (Phase 3+).
+- `patterns.status` is written ONLY by the proposer service and UI approve/reject actions
+  — the miner still never touches it (see above).
+- The LLM client (`src/pae/llm/client.py`) refuses any model name containing `:cloud`
+  (local-only rule); the proposer validates every LLM output against the automation-subset
+  schema + entity registry before it is ever persisted.
+- The shadow evaluator (`src/pae/shadow/service.py`) simulates only the weekday
+  time-condition when scoring a proposal; other stored conditions (after/before/state/sun)
+  are recorded but ignored in scoring.
 - `ha/weather/` is standalone from PAE on purpose (PAE's HA client is read-only enforced)
   and owns ALL `sdr/davis` HA discovery; the sdr-fleet bridge publishes states only —
   re-adding discovery there creates duplicate entities.

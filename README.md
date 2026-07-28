@@ -6,9 +6,9 @@ graduates automations through three trust levels: **shadow → suggest → auton
 The LLM never sits in the real-time control loop; HA's native automation engine executes
 everything. Predictability beats cleverness.
 
-**Current status: Phase 2** — statistical pattern mining. PAE still writes nothing to Home
-Assistant (enforced in code: outbound WebSocket message whitelist — read-only commands
-only — plus a `ReadOnlyViolation` guard on all write-shaped methods).
+**Current status: Phase 3** — LLM automation proposals + shadow evaluation. PAE still
+writes nothing to Home Assistant (enforced in code: outbound WebSocket message whitelist
+— read-only commands only — plus a `ReadOnlyViolation` guard on all write-shaped methods).
 
 ## Stack
 
@@ -51,6 +51,38 @@ the miner never touches `status` (lifecycle belongs to Phase 3+).
 
     pae mine             # run the miner once, now
     pae patterns list    # top patterns by lift (--kind, --limit)
+
+## Proposals (Phase 3)
+
+A nightly job chain runs mine → propose → shadow-eval on the worker. `propose` picks up
+eligible, non-`suspected_schedule` patterns (deterministic gates on support, temporal
+consistency, and — for `event_pair` — exclusion of pairs whose entities have a
+sched-flagged `time_of_day` sibling), groups related patterns by `group_key`, and hands
+each group to a local LLM (Ollama-only; model names containing `:cloud` are refused
+outright, since those route to Ollama's paid cloud tier). The LLM authors an automation
+as JSON, which is validated against a constrained automation-subset schema and the live
+entity registry before anything is persisted — no unvalidated LLM output ever reaches
+storage or HA.
+
+Proposals move through a `patterns`-like lifecycle: `shadowing` → `approved` | `rejected`
+(terminal) | `stale` (falls out of eligibility, can revive back to `shadowing`). Only the
+proposer service and UI approve/reject actions write these statuses — never the miner.
+
+The shadow evaluator replays each shadowing/approved proposal's automation against
+already-ingested history (simulating only the weekday time-condition; other stored
+conditions are recorded but ignored in scoring) and scores it daily:
+
+- **precision** = matches / expected fires
+- **coverage** = matches / human_total (the human-driven events the automation would
+  have covered)
+
+A proposal earns a "ready" badge once it has ≥14 days of shadow history with
+precision ≥0.8 and coverage ≥0.8.
+
+    pae propose          # generate/refresh proposals once, now
+    pae shadow           # run the shadow evaluator once, now
+
+Review UI: `http://<host>:8000/proposals` (list by status, detail view, approve/reject).
 
 ## Grafana
 
