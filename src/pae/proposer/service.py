@@ -180,7 +180,10 @@ def _process_groups(
                 "rationale": content["rationale"],
                 "automation_json": parsed.model_dump(by_alias=True, exclude_none=True),
                 "source_pattern_keys": [p.pattern_key for p in group.patterns],
-                "entity_ids": group.entity_ids,
+                "entity_ids": sorted(
+                    set(group.entity_ids)
+                    | ({group.trigger_entity_id} if group.trigger_entity_id else set())
+                ),
                 "model_name": resp.model,
                 "prompt_version": PROMPT_VERSION,
                 "status": "shadowing",

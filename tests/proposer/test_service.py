@@ -15,6 +15,8 @@ SUN = SunCalculator(41.85, -87.65, TZ)
 NOW = datetime(2026, 7, 28, 9, 0, tzinfo=UTC)
 REG = {"switch.a": RegistryInfo("switch", "Patio", "Patio", None)}
 DOMAINS = {"switch.a": "switch"}
+REG_PAIR = dict(REG, **{"binary_sensor.door": RegistryInfo("binary_sensor", "Door", "Patio", None)})
+DOMAINS_PAIR = dict(DOMAINS, **{"binary_sensor.door": "binary_sensor"})
 
 GOOD = {
     "propose": True,
@@ -56,6 +58,40 @@ def run(llm, existing=None):
     return _process_groups(
         groups(), existing or {}, llm, REG, DOMAINS, TZ, SUN, NOW
     )
+
+
+def pair_groups():
+    return build_groups(
+        [
+            make_pattern(
+                pattern_key="pair:binary_sensor.door:on:switch.a:on",
+                kind="event_pair",
+                entity_id="switch.a",
+                action="on",
+                day_type=None,
+                trigger_entity_id="binary_sensor.door",
+                trigger_state="on",
+            )
+        ]
+    )
+
+
+def run_pair(llm, existing=None):
+    return _process_groups(
+        pair_groups(), existing or {}, llm, REG_PAIR, DOMAINS_PAIR, TZ, SUN, NOW
+    )
+
+
+GOOD_PAIR = {
+    "propose": True,
+    "title": "Patio on when door opens",
+    "rationale": "Observed daily.",
+    "automation": {
+        "trigger": [{"platform": "state", "entity_id": "binary_sensor.door", "to": "on"}],
+        "condition": [],
+        "action": [{"service": "switch.turn_on", "target": {"entity_id": ["switch.a"]}}],
+    },
+}
 
 
 def test_good_response_produces_insert():
@@ -113,6 +149,13 @@ def test_blank_title_treated_as_validation_failure():
     llm = FakeLLM([blank_title, GOOD])
     counters, inserts, _ = run(llm)
     assert counters["generated"] == 1 and len(llm.calls) == 2
+
+
+def test_pair_insert_entity_ids_includes_trigger_entity():
+    counters, inserts, _ = run_pair(FakeLLM([GOOD_PAIR]))
+    assert counters["generated"] == 1
+    (ins,) = inserts
+    assert ins["entity_ids"] == sorted({"switch.a", "binary_sensor.door"})
 
 
 def test_refresh_proposal_gauges_zeroes_missing_statuses():

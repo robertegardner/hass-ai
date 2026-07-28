@@ -13,6 +13,7 @@ human acts more than once near a single fire (documented on `ShadowResult`).
 Runs synchronously (it is an RQ job); uses its own short-lived sync engine.
 """
 from collections import defaultdict
+from collections.abc import Sequence
 from dataclasses import dataclass
 from datetime import UTC, date, datetime, time, timedelta
 from zoneinfo import ZoneInfo
@@ -24,7 +25,7 @@ from pae.config import get_settings
 from pae.db.models import Event, Proposal, ShadowResult
 from pae.logging import get_logger
 from pae.metrics import SHADOW_DAYS_SCORED
-from pae.miner.stats import circular_diff, minutes_of_day
+from pae.miner.stats import DAY_MINUTES, circular_diff, minutes_of_day
 from pae.miner.sun import SunCalculator
 from pae.proposer.schema import (
     SERVICE_STATE,
@@ -64,6 +65,22 @@ def _day_passes_conditions(conditions: list, day: date) -> bool:
         if isinstance(c, TimeCondition) and c.weekday is not None and weekday not in c.weekday:
             return False
     return True
+
+
+def _relative_minute(ev: ShadowEvent, day: date, tz: ZoneInfo) -> float:
+    """Minute-of-day for ``ev``, shifted onto a continuous axis around
+    ``day`` (negative before midnight, > 1440 after) so an adjacent-day event
+    compares correctly against this day's fires: the tod/sun circular window
+    is shift-invariant (mod 1440) either way, but the pair forward window's
+    plain subtraction needs the shift to see a trigger at 23:58 followed by a
+    human event at 00:02 the next day as 4 minutes apart, not ~-1436."""
+    raw = minutes_of_day(ev.time, tz)
+    ev_day = ev.time.astimezone(tz).date()
+    if ev_day < day:
+        return raw - DAY_MINUTES
+    if ev_day > day:
+        return raw + DAY_MINUTES
+    return raw
 
 
 def _fire_minutes(
@@ -108,7 +125,14 @@ def evaluate_day(
     day_events: list[ShadowEvent],
     tolerance_minutes: float = 45.0,
     pair_window_minutes: float = 5.0,
+    adjacent_events: Sequence[ShadowEvent] = (),
 ) -> DayScore | None:
+    """``adjacent_events`` (the tail of the previous local day and the head of
+    the next) participate ONLY in match-window checks below, for triggers
+    that fire close enough to midnight that a human's real-world response
+    lands on the other calendar day. They never count toward `human_total`
+    (that stays this-day-only) and never toward state-trigger would-fire
+    counting (that stays `day_events`-only, per `_fire_minutes`)."""
     try:
         parsed = Automation.model_validate(automation)
     except ValidationError as exc:
@@ -129,12 +153,20 @@ def evaluate_day(
         expected_state = SERVICE_STATE[service_name]
         for entity_id in action.target.entity_id:
             human_minutes = [
-                minutes_of_day(e.time, tz)
+                _relative_minute(e, day, tz)
                 for e in day_events
                 if e.entity_id == entity_id
                 and e.new_state == expected_state
                 and e.triggered_by == "manual"
             ]
+            adjacent_human_minutes = [
+                _relative_minute(e, day, tz)
+                for e in adjacent_events
+                if e.entity_id == entity_id
+                and e.new_state == expected_state
+                and e.triggered_by == "manual"
+            ]
+            match_candidates = human_minutes + adjacent_human_minutes
             expected_fires += len(fire_minutes)
             human_total += len(human_minutes)
             human_matches += sum(
@@ -146,7 +178,7 @@ def evaluate_day(
                         tolerance_minutes=tolerance_minutes,
                         pair_window_minutes=pair_window_minutes,
                     )
-                    for ev_m in human_minutes
+                    for ev_m in match_candidates
                 )
             )
 
@@ -168,6 +200,25 @@ def _involved_entities(automation_json: dict) -> set[str]:
     for action in parsed.action:
         entities.update(action.target.entity_id)
     return entities
+
+
+def _adjacent_events(
+    by_day: dict[date, list[ShadowEvent]], day: date, tolerance_minutes: float, tz: ZoneInfo
+) -> list[ShadowEvent]:
+    """The tail of ``day - 1`` and the head of ``day + 1`` (within
+    ``tolerance_minutes`` of midnight) — see ``evaluate_day``'s
+    ``adjacent_events`` for how these participate in matching only."""
+    prev_tail = [
+        e
+        for e in by_day.get(day - timedelta(days=1), [])
+        if minutes_of_day(e.time, tz) >= DAY_MINUTES - tolerance_minutes
+    ]
+    next_head = [
+        e
+        for e in by_day.get(day + timedelta(days=1), [])
+        if minutes_of_day(e.time, tz) <= tolerance_minutes
+    ]
+    return prev_tail + next_head
 
 
 def run_shadow_eval(now: datetime | None = None) -> dict:
@@ -211,14 +262,15 @@ def run_shadow_eval(now: datetime | None = None) -> dict:
                     for i in range(max(span, 0))
                     if (p.id, start_day + timedelta(days=i)) not in existing
                 ]
-                plans.append((p, needed_days))
                 if not needed_days:
                     continue
                 try:
-                    all_entities |= _involved_entities(p.automation_json)
+                    entities = _involved_entities(p.automation_json)
                 except ValidationError:
                     log.error("shadow_schema_drift", proposal_id=p.id)
                     continue
+                all_entities |= entities
+                plans.append((p, needed_days))
                 day0 = min(needed_days)
                 earliest_day = day0 if earliest_day is None else min(earliest_day, day0)
 
@@ -258,6 +310,9 @@ def run_shadow_eval(now: datetime | None = None) -> dict:
                             day_events=by_day.get(d, []),
                             tolerance_minutes=settings.shadow_tolerance_minutes,
                             pair_window_minutes=settings.miner_pair_window_minutes,
+                            adjacent_events=_adjacent_events(
+                                by_day, d, settings.shadow_tolerance_minutes, tz
+                            ),
                         )
                         if score is None:
                             continue

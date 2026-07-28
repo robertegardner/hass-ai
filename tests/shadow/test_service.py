@@ -1,4 +1,4 @@
-from datetime import UTC, date, datetime
+from datetime import UTC, date, datetime, timedelta
 from zoneinfo import ZoneInfo
 
 from pae.miner.sun import SunCalculator
@@ -93,3 +93,48 @@ def test_dst_fallback_sun_eval():
     score = evaluate_day(auto, "time_of_day", d, tz=TZ, sun=SUN,
                          day_events=[ev(hh, mm, day=d)])
     assert score.human_matches == 1
+
+
+def test_adjacent_event_matches_across_midnight():
+    # a time trigger just after midnight must see a human event from the
+    # tail end of the previous calendar day, via adjacent_events only
+    auto = dict(TOD, trigger=[{"platform": "time", "at": "00:10:00"}], condition=[])
+    prev_day = DAY - timedelta(days=1)
+    score = evaluate_day(
+        auto, "time_of_day", DAY, tz=TZ, sun=SUN, day_events=[],
+        adjacent_events=[ev(23, 55, day=prev_day)],
+    )
+    assert (score.human_matches, score.human_total) == (1, 0)
+
+
+def test_adjacent_events_do_not_count_as_state_trigger_fires():
+    # a door-open event that only appears in adjacent_events must never be
+    # counted as a would-fire occurrence for a state trigger
+    auto = {
+        "trigger": [{"platform": "state", "entity_id": "binary_sensor.door", "to": "on"}],
+        "condition": [],
+        "action": [{"service": "switch.turn_on", "target": {"entity_id": ["switch.a"]}}],
+    }
+    prev_day = DAY - timedelta(days=1)
+    score = evaluate_day(
+        auto, "event_pair", DAY, tz=TZ, sun=SUN, day_events=[],
+        adjacent_events=[ev(23, 55, entity="binary_sensor.door", day=prev_day)],
+    )
+    assert score.expected_fires == 0
+
+
+def test_pair_forward_window_matches_across_midnight():
+    # trigger fires at 23:58 (day_events); the human's follow-up at 00:02 the
+    # next day is 4 real minutes later and must count as a forward match
+    auto = {
+        "trigger": [{"platform": "state", "entity_id": "binary_sensor.door", "to": "on"}],
+        "condition": [],
+        "action": [{"service": "switch.turn_on", "target": {"entity_id": ["switch.a"]}}],
+    }
+    next_day = DAY + timedelta(days=1)
+    score = evaluate_day(
+        auto, "event_pair", DAY, tz=TZ, sun=SUN,
+        day_events=[ev(23, 58, entity="binary_sensor.door")],
+        adjacent_events=[ev(0, 2, day=next_day)],
+    )
+    assert (score.expected_fires, score.human_matches) == (1, 1)
