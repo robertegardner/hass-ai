@@ -32,6 +32,10 @@ from pae.proposer.schema import validate_proposal
 log = get_logger(__name__)
 
 LIVE_STATUSES = ("shadowing", "approved")
+# every status a Proposal row can carry — kept fixed so a bucket that drops to
+# zero overwrites its stale last value instead of holding it forever (mirrors
+# pae.miner.service's MINER_PATTERNS refresh).
+PROPOSAL_STATUSES = ("shadowing", "approved", "rejected", "stale")
 
 
 @dataclass
@@ -52,6 +56,24 @@ def _new_counters() -> dict[str, int]:
         "validation_failed": 0,
         "skipped_existing": 0,
     }
+
+
+def _content_field_errors(content: dict) -> list[str]:
+    """RESPONSE_SCHEMA only requires "propose" — title/rationale are schema-legal
+    to omit, but an insert with either missing crashes the storage layer. Treat
+    that as a validation failure so it goes through the same retry-once path
+    as an invalid automation, rather than raising deep inside the transaction."""
+    errors = []
+    for field in ("title", "rationale"):
+        value = content.get(field)
+        if not isinstance(value, str) or not value.strip():
+            errors.append(f"{field} is missing or empty")
+    return errors
+
+
+def _refresh_proposal_gauges(status_counts: dict[str, int]) -> None:
+    for status_name in PROPOSAL_STATUSES:
+        PROPOSALS_BY_STATUS.labels(status=status_name).set(status_counts.get(status_name, 0))
 
 
 def _process_groups(
@@ -112,6 +134,7 @@ def _process_groups(
             tz=tz,
             sun=sun,
         )
+        errors = errors + _content_field_errors(content)
 
         if errors:
             retry_messages = messages + [
@@ -138,6 +161,7 @@ def _process_groups(
                 tz=tz,
                 sun=sun,
             )
+            errors = errors + _content_field_errors(content)
             if errors:
                 counters["validation_failed"] += 1
                 PROPOSER_VALIDATION_FAILURES.inc()
@@ -285,8 +309,7 @@ def run_proposing(now: datetime | None = None, llm=None) -> ProposeResult:
                     sa.select(Proposal.status, sa.func.count()).group_by(Proposal.status)
                 ).all()
             )
-        for status_name, count in status_counts.items():
-            PROPOSALS_BY_STATUS.labels(status=status_name).set(count)
+        _refresh_proposal_gauges(status_counts)
 
         result = ProposeResult(
             groups_considered=counters["groups_considered"],

@@ -5,9 +5,10 @@ from zoneinfo import ZoneInfo
 from conftest import make_pattern
 
 from pae.llm.prompt import RegistryInfo
+from pae.metrics import PROPOSALS_BY_STATUS
 from pae.miner.sun import SunCalculator
 from pae.proposer.grouping import build_groups
-from pae.proposer.service import _process_groups
+from pae.proposer.service import PROPOSAL_STATUSES, _process_groups, _refresh_proposal_gauges
 
 TZ = ZoneInfo("America/Chicago")
 SUN = SunCalculator(41.85, -87.65, TZ)
@@ -89,3 +90,41 @@ def test_existing_live_proposal_skips_llm():
     llm = FakeLLM([])
     counters, inserts, _ = run(llm, existing={g.group_key: "shadowing" for g in groups()})
     assert counters["skipped_existing"] == 1 and llm.calls == []
+
+
+def test_missing_title_treated_as_validation_failure():
+    no_title = {k: v for k, v in GOOD.items() if k != "title"}
+    llm = FakeLLM([no_title, GOOD])
+    counters, inserts, _ = run(llm)
+    assert counters["generated"] == 1 and len(llm.calls) == 2
+    assert "Validation failed" in llm.calls[1][-1]["content"]
+    (ins,) = inserts
+    assert ins["title"] == "Patio on"
+
+
+def test_missing_rationale_second_failure_skips():
+    no_rationale = {k: v for k, v in GOOD.items() if k != "rationale"}
+    counters, inserts, _ = run(FakeLLM([no_rationale, no_rationale]))
+    assert counters["validation_failed"] == 1 and inserts == []
+
+
+def test_blank_title_treated_as_validation_failure():
+    blank_title = dict(GOOD, title="   ")
+    llm = FakeLLM([blank_title, GOOD])
+    counters, inserts, _ = run(llm)
+    assert counters["generated"] == 1 and len(llm.calls) == 2
+
+
+def test_refresh_proposal_gauges_zeroes_missing_statuses():
+    _refresh_proposal_gauges({"shadowing": 3, "stale": 1})
+    assert PROPOSALS_BY_STATUS.labels(status="shadowing")._value.get() == 3
+    assert PROPOSALS_BY_STATUS.labels(status="stale")._value.get() == 1
+    assert PROPOSALS_BY_STATUS.labels(status="approved")._value.get() == 0
+    assert PROPOSALS_BY_STATUS.labels(status="rejected")._value.get() == 0
+
+    # a status bucket that drops to zero must not keep serving its old value
+    _refresh_proposal_gauges({"approved": 2})
+    assert PROPOSALS_BY_STATUS.labels(status="approved")._value.get() == 2
+    assert PROPOSALS_BY_STATUS.labels(status="shadowing")._value.get() == 0
+    assert PROPOSALS_BY_STATUS.labels(status="stale")._value.get() == 0
+    assert set(PROPOSAL_STATUSES) == {"shadowing", "approved", "rejected", "stale"}
