@@ -20,6 +20,7 @@ from pae.logging import get_logger
 from pae.metrics import MINER_LAST_SUCCESS, MINER_PATTERNS, MINER_RUN_SECONDS, MINER_RUNS
 from pae.miner.pairs import mine_event_pairs
 from pae.miner.stats import circular_diff
+from pae.miner.sun import SunCalculator
 from pae.miner.tod import mine_time_of_day
 from pae.miner.types import MinedEvent, PatternCandidate
 
@@ -137,6 +138,9 @@ def run_mining(now: datetime | None = None) -> MiningResult:
     settings = get_settings()
     now = now or datetime.now(UTC)
     tz = ZoneInfo(settings.miner_local_tz)
+    sun = None
+    if settings.miner_latitude is not None and settings.miner_longitude is not None:
+        sun = SunCalculator(settings.miner_latitude, settings.miner_longitude, tz)
     us_holidays = holidays.US()
     engine = sa.create_engine(settings.db_url, pool_pre_ping=True)
     started = _time.monotonic()
@@ -164,6 +168,8 @@ def run_mining(now: datetime | None = None) -> MiningResult:
                 min_occurrences=settings.miner_min_occurrences,
                 tolerance_minutes=settings.miner_tod_tolerance_minutes,
                 schedule_std_minutes=settings.miner_schedule_std_minutes,
+                sun=sun,
+                sun_std_minutes=settings.miner_sun_std_minutes,
             )
             existing = conn.execute(
                 sa.select(

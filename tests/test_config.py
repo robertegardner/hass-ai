@@ -48,6 +48,9 @@ def test_miner_defaults():
     assert s.miner_tod_min_support == 0.5
     assert s.miner_tod_tolerance_minutes == 45.0
     assert s.miner_schedule_std_minutes == 2.0
+    assert s.miner_latitude is None
+    assert s.miner_longitude is None
+    assert s.miner_sun_std_minutes == 5.0
     assert s.miner_pair_window_minutes == 5.0
     assert s.miner_pair_min_confidence == 0.6
     assert s.miner_pair_min_lift == 3.0

@@ -50,6 +50,9 @@ class Settings(BaseSettings):
     miner_tod_min_support: float = 0.5
     miner_tod_tolerance_minutes: float = 45.0
     miner_schedule_std_minutes: float = 2.0
+    miner_latitude: float | None = None  # sun-anchored schedule detection off when unset
+    miner_longitude: float | None = None
+    miner_sun_std_minutes: float = 5.0
     miner_pair_window_minutes: float = 5.0
     miner_pair_min_confidence: float = 0.6
     miner_pair_min_lift: float = 3.0
