@@ -1,4 +1,7 @@
 import json
+import sys
+from importlib.util import module_from_spec, spec_from_file_location
+from pathlib import Path
 
 import pytest
 from aiohttp import web
@@ -44,6 +47,44 @@ class FakeHA:
                 for event in self.events_on_subscribe:
                     await ws.send_json({"id": frame["id"], "type": "event", "event": event})
         return ws
+
+
+def __getattr__(name):
+    """Dynamically load from the appropriate conftest module based on caller context."""
+    import inspect
+
+    # Check if caller is from tests.proposer
+    frame = inspect.currentframe()
+    if frame is None:
+        raise AttributeError(f"module 'conftest' has no attribute '{name}'")
+
+    try:
+        while frame:
+            caller_module = frame.f_globals.get("__name__", "")
+            if "tests.proposer" in caller_module:
+                # Load from proposer conftest
+                proposer_conftest_path = Path(__file__).parent / "proposer" / "conftest.py"
+                if proposer_conftest_path.exists():
+                    spec = spec_from_file_location("_proposer_conftest", proposer_conftest_path)
+                    if spec and spec.loader:
+                        mod = module_from_spec(spec)
+                        spec.loader.exec_module(mod)
+                        if hasattr(mod, name):
+                            return getattr(mod, name)
+            frame = frame.f_back
+    finally:
+        del frame
+
+    raise AttributeError(f"module 'conftest' has no attribute '{name}'")
+
+
+def pytest_configure(config):
+    """Add test subdirectories to sys.path."""
+    # Add proposer dir to sys.path for direct imports
+    tests_dir = Path(__file__).parent
+    proposer_dir = tests_dir / "proposer"
+    if proposer_dir.exists():
+        sys.path.insert(0, str(proposer_dir))
 
 
 @pytest.fixture
