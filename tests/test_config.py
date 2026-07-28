@@ -54,3 +54,26 @@ def test_miner_defaults():
     assert s.miner_pair_window_minutes == 5.0
     assert s.miner_pair_min_confidence == 0.6
     assert s.miner_pair_min_lift == 3.0
+
+
+def test_phase3_defaults():
+    from pae.config import Settings
+
+    s = Settings(_env_file=None)
+    assert s.llm_model_primary == "alibayram/Qwen3-30B-A3B-Instruct-2507:latest"
+    assert s.llm_model_fallback == "qwen3.5:9b"
+    assert s.llm_timeout_seconds == 120.0
+    assert s.proposer_tod_min_consistency == 0.8
+    assert s.proposer_tod_max_std_minutes == 30.0
+    assert s.proposer_tod_min_support == 0.6
+    assert s.proposer_tod_min_days == 14
+    assert s.proposer_min_occurrences == 8
+    assert s.proposer_pair_min_confidence == 0.7
+    assert s.proposer_pair_min_lift == 5.0
+    assert s.proposer_group_window_minutes == 20.0
+    assert s.proposer_stale_days == 7
+    assert s.shadow_tolerance_minutes == 45.0
+    assert s.shadow_lookback_days == 30
+    assert s.shadow_ready_days == 14
+    assert s.shadow_ready_precision == 0.8
+    assert s.shadow_ready_coverage == 0.8

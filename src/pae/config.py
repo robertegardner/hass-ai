@@ -57,6 +57,25 @@ class Settings(BaseSettings):
     miner_pair_min_confidence: float = 0.6
     miner_pair_min_lift: float = 3.0
 
+    # LLM + proposer + shadow (Phase 3) — ollama_primary/ollama_fallback URLs above
+    llm_model_primary: str = "alibayram/Qwen3-30B-A3B-Instruct-2507:latest"
+    llm_model_fallback: str = "qwen3.5:9b"
+    llm_timeout_seconds: float = 120.0
+    proposer_tod_min_consistency: float = 0.8
+    proposer_tod_max_std_minutes: float = 30.0
+    proposer_tod_min_support: float = 0.6
+    proposer_tod_min_days: int = 14
+    proposer_min_occurrences: int = 8
+    proposer_pair_min_confidence: float = 0.7
+    proposer_pair_min_lift: float = 5.0
+    proposer_group_window_minutes: float = 20.0
+    proposer_stale_days: int = 7
+    shadow_tolerance_minutes: float = 45.0
+    shadow_lookback_days: int = 30
+    shadow_ready_days: int = 14
+    shadow_ready_precision: float = 0.8
+    shadow_ready_coverage: float = 0.8
+
     @property
     def ha_ws_url(self) -> str:
         base = self.ha_url.rstrip("/")
