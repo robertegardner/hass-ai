@@ -1,8 +1,9 @@
-"""Tiny in-process daily scheduler: enqueue the nightly mining job.
+"""Tiny in-process daily scheduler: enqueue the nightly job chain.
 
 Deliberately not rq-scheduler: one daemon thread sleeps until the next
-HH:00 UTC and enqueues. The per-date job_id plus the miner's idempotent
-upsert make an occasional double-enqueue (e.g. two workers during a deploy
+HH:00 UTC and enqueues. The per-date job_id plus each job's idempotent
+upsert (miner's upsert, proposer's upsert, shadow evaluator's upsert)
+make an occasional double-enqueue (e.g. two workers during a deploy
 overlap) harmless.
 """
 import threading
@@ -23,6 +24,22 @@ def seconds_until_next(hour_utc: int, now: datetime) -> float:
     return (target - now).total_seconds()
 
 
+def enqueue_nightly_chain(queue: Queue, now: datetime) -> None:
+    """Enqueue the nightly mine → propose → shadow job chain.
+
+    Each job depends on the previous one via RQ's depends_on.
+    Job ids are scoped to the date, making re-enqueues within a day idempotent.
+    """
+    from pae.miner.job import mine_patterns_job
+    from pae.proposer.job import propose_job
+    from pae.shadow.job import shadow_eval_job
+
+    mine = queue.enqueue(mine_patterns_job, job_id=f"mine-{now:%Y%m%d}")
+    propose = queue.enqueue(propose_job, job_id=f"propose-{now:%Y%m%d}", depends_on=mine)
+    shadow = queue.enqueue(shadow_eval_job, job_id=f"shadow-{now:%Y%m%d}", depends_on=propose)
+    log.info("nightly_chain_enqueued", mine=mine.id, propose=propose.id, shadow=shadow.id)
+
+
 def run_daily(
     enqueue: Callable[[datetime], None],
     hour_utc: int,
@@ -40,13 +57,10 @@ def run_daily(
 
 
 def start_daily_scheduler(queue: Queue, hour_utc: int) -> threading.Event:
-    from pae.miner.job import mine_patterns_job
-
     stop = threading.Event()
 
     def enqueue(now: datetime) -> None:
-        job = queue.enqueue(mine_patterns_job, job_id=f"mine-{now:%Y%m%d}")
-        log.info("mine_job_enqueued", job_id=job.id)
+        enqueue_nightly_chain(queue, now)
 
     thread = threading.Thread(
         target=run_daily, args=(enqueue, hour_utc, stop), daemon=True, name="pae-mine-scheduler"
