@@ -1,7 +1,7 @@
-from datetime import datetime
+from datetime import date, datetime
 from typing import Any
 
-from sqlalchemy import BigInteger, Boolean, DateTime, Float, Index, Text
+from sqlalchemy import BigInteger, Boolean, Date, DateTime, Float, Index, Text
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
@@ -115,3 +115,48 @@ class Pattern(Base):
         Index("ux_patterns_key", "pattern_key", unique=True),
         Index("ix_patterns_kind", "kind"),
     )
+
+
+class Proposal(Base):
+    """An LLM-authored automation proposal (Phase 3). One row per group_key;
+    lifecycle: shadowing -> approved | rejected (terminal) | stale."""
+
+    __tablename__ = "proposals"
+
+    id: Mapped[int] = mapped_column(BigInteger, autoincrement=True, primary_key=True)
+    group_key: Mapped[str] = mapped_column(Text, nullable=False)
+    kind: Mapped[str] = mapped_column(Text, nullable=False)  # time_of_day|event_pair
+    title: Mapped[str] = mapped_column(Text, nullable=False)
+    rationale: Mapped[str] = mapped_column(Text, nullable=False)
+    automation_json: Mapped[dict[str, Any]] = mapped_column(JSONB, nullable=False)
+    source_pattern_keys: Mapped[list] = mapped_column(JSONB, nullable=False)
+    entity_ids: Mapped[list] = mapped_column(JSONB, nullable=False)
+    model_name: Mapped[str] = mapped_column(Text, nullable=False)
+    prompt_version: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    status: Mapped[str] = mapped_column(Text, nullable=False, server_default="shadowing")
+    reject_reason: Mapped[str | None] = mapped_column(Text)
+    last_eligible_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+    __table_args__ = (
+        Index("ux_proposals_group_key", "group_key", unique=True),
+        Index("ix_proposals_status", "status"),
+    )
+
+
+class ShadowResult(Base):
+    """Per-proposal per-local-day shadow scores. precision = human_matches /
+    expected_fires; coverage = human_matches / human_total (see shadow service
+    for the per-entity aggregation that makes both ratios stay in [0, 1])."""
+
+    __tablename__ = "shadow_results"
+
+    id: Mapped[int] = mapped_column(BigInteger, autoincrement=True, primary_key=True)
+    proposal_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    day: Mapped[date] = mapped_column(Date, nullable=False)
+    expected_fires: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    human_matches: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    human_total: Mapped[int] = mapped_column(BigInteger, nullable=False)
+
+    __table_args__ = (Index("ux_shadow_proposal_day", "proposal_id", "day", unique=True),)
