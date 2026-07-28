@@ -1,6 +1,6 @@
-from pae.proposer.gates import eligible_patterns, sched_flagged_entities
+from conftest import make_pattern  # noqa: F401 — repo rule: never tests.conftest
 
-from .conftest import make_pattern  # noqa: F401 — repo rule: never tests.conftest
+from pae.proposer.gates import eligible_patterns, sched_flagged_entities
 
 REG = {"light.bar", "switch.a", "switch.b", "binary_sensor.door"}
 

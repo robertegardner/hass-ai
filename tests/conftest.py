@@ -1,13 +1,15 @@
 import json
-import sys
-from importlib.util import module_from_spec, spec_from_file_location
-from pathlib import Path
+from datetime import UTC, datetime
 
 import pytest
 from aiohttp import web
 
+from pae.db.models import Pattern
+
 VALID_TOKEN = "test-token"
 HA_VERSION = "2026.7.0"
+
+NOW = datetime(2026, 7, 28, 9, 0, tzinfo=UTC)
 
 
 class FakeHA:
@@ -49,42 +51,6 @@ class FakeHA:
         return ws
 
 
-def __getattr__(name):
-    """Dynamically load from the appropriate conftest module based on caller context."""
-    import inspect
-
-    # Check if caller is from tests.proposer
-    frame = inspect.currentframe()
-    if frame is None:
-        raise AttributeError(f"module 'conftest' has no attribute '{name}'")
-
-    try:
-        while frame:
-            caller_module = frame.f_globals.get("__name__", "")
-            if "tests.proposer" in caller_module:
-                # Load from proposer conftest
-                proposer_conftest_path = Path(__file__).parent / "proposer" / "conftest.py"
-                if proposer_conftest_path.exists():
-                    spec = spec_from_file_location("_proposer_conftest", proposer_conftest_path)
-                    if spec and spec.loader:
-                        mod = module_from_spec(spec)
-                        spec.loader.exec_module(mod)
-                        if hasattr(mod, name):
-                            return getattr(mod, name)
-            frame = frame.f_back
-    finally:
-        del frame
-
-    raise AttributeError(f"module 'conftest' has no attribute '{name}'")
-
-
-def pytest_configure(config):
-    """Add test subdirectories to sys.path."""
-    # Add proposer dir to sys.path for direct imports
-    tests_dir = Path(__file__).parent
-    proposer_dir = tests_dir / "proposer"
-    if proposer_dir.exists():
-        sys.path.insert(0, str(proposer_dir))
 
 
 @pytest.fixture
@@ -100,3 +66,31 @@ async def fake_ha():
     server.url = f"ws://127.0.0.1:{port}/api/websocket"
     yield server
     await runner.cleanup()
+
+
+def make_pattern(**kw) -> Pattern:
+    defaults = dict(
+        pattern_key="tod:light.bar:on:weekday:14",
+        kind="time_of_day",
+        entity_id="light.bar",
+        action="on",
+        day_type="weekday",
+        trigger_entity_id=None,
+        trigger_state=None,
+        tod_minutes=432.0,
+        tod_std_minutes=8.0,
+        support=0.9,
+        confidence=0.9,
+        lift=20.0,
+        temporal_consistency=0.95,
+        occurrences=15,
+        days_observed=16,
+        suspected_schedule=False,
+        status="candidate",
+        evidence={},
+        first_seen=NOW,
+        last_seen=NOW,
+        mined_at=NOW,
+    )
+    defaults.update(kw)
+    return Pattern(**defaults)
