@@ -75,9 +75,22 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--dry-run", action="store_true", help="print payloads, publish nothing")
     parser.add_argument("--remove", action="store_true", help="publish empty retained payloads")
+    parser.add_argument(
+        "--export", metavar="FILE",
+        help="write configs as JSON {topic: payload} — the sdr-fleet davis "
+             "bridge ships this snapshot (profiles/davis/discovery_configs.json) "
+             "and republishes it retained on every MQTT (re)connect; regenerate "
+             "after any sensor_map.py change")
     args = parser.parse_args()
 
     configs = build_configs()
+
+    if args.export:
+        with open(args.export, "w") as f:
+            json.dump(dict(configs), f, indent=2, ensure_ascii=False, sort_keys=True)
+            f.write("\n")
+        print(f"{len(configs)} configs -> {args.export}")
+        return
 
     if args.dry_run:
         for topic, payload in configs:
